@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var API_URL = "http://local.dev:5000/api/flux/";
 
     if (twingl.getAccessToken()) {
-      console.log(twingl.getAccessToken());
+      window.token = twingl.getAccessToken();
     };
 
     function callApi(action) {
@@ -39,3 +39,15 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
+
+/** Example of a Message Listener. This can later be repurposed to tell
+    the content script whether or not a user is logged in.
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                "from the extension");
+    if (request.request == "auth_token")
+      sendResponse({token: window.token});
+  });
+****/
