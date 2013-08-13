@@ -5,7 +5,15 @@
 var twingl = chrome.extension.getBackgroundPage().twingl;
 
 document.addEventListener('DOMContentLoaded', function () {
-  $("#sign-out").click(function(){
-    twingl.clearAccessToken();
-  })
+  if(twingl.getAccessToken()) { 
+    $("#sign-out").click(function(){
+      twingl.clearAccessToken();
+    })  
+  }
+  else {
+   $("#sign-out").click(function(){
+      twingl.authorize();
+    })   
+  }
+  
 });
