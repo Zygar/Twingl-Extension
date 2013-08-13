@@ -15,6 +15,14 @@
       "matches": ["<all_urls>"],
       "css": ["annotator.min.css"],
       "js": ["jquery-2.0.3.min.js", "annotator.min.js", "twingl.js"]
+    },
+    {
+      "matches": ["http://local.dev:5000/?code=*"],
+      "js": ["oauth2/oauth2_inject.js"],
+      "run_at": "document_start",
+      "permissions": [
+        "http://local.dev:5000/oauth/token"
+      ]
     }
   ]
 }
