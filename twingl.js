@@ -11,7 +11,7 @@ Annotator.Plugin.HelloWorld = (function() {
     this.annotator.editor.addField({
       label: 'Test',
       load: function(field, annotation) {
-        
+
       }
     })
   };
