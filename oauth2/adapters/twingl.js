@@ -3,7 +3,11 @@ OAuth2.adapter('twingl', {
    * @return {URL} URL to the page that returns the authorization code
    */
   authorizationCodeURL: function(config) {
-    return 'http://api.local.dev:5000/oauth/authorize';
+    return 'http://local.dev:5000/oauth/authorize?\
+response_type=code&client_id={{CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&scope={{API_SCOPE}}'
+        .replace('{{CLIENT_ID}}', config.clientId)
+        .replace('{{REDIRECT_URI}}', this.redirectURL(config))
+        .replace('{{API_SCOPE}}', config.apiScope);
   },
 
   /**
@@ -11,21 +15,25 @@ OAuth2.adapter('twingl', {
    * script into
    */
   redirectURL: function(config) {
-    return 'http://local.dev:5000/';
+    return 'http://local.dev:5000/robots.txt';
   },
 
   /**
    * @return {String} Authorization code for fetching the access token
    */
   parseAuthorizationCode: function(url) {
-    return '';
+    var error = url.match(/\?error=(.+)/);
+    if (error) {
+      throw 'Error getting authorization code: ' + error[1];
+    }
+    return url.match(/\?code=([\w\/\-]+)/)[1];
   },
 
   /**
    * @return {URL} URL to the access token providing endpoint
    */
   accessTokenURL: function() {
-    return '';
+    return 'http://local.dev:5000/oauth/token';
   },
 
   /**
@@ -39,7 +47,13 @@ OAuth2.adapter('twingl', {
    * @return {Object} The payload to use when getting the access token
    */
   accessTokenParams: function(authorizationCode, config) {
-    return {};
+    return {
+      code: authorizationCode,
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      redirect_uri: this.redirectURL(config),
+      grant_type: 'authorization_code'
+    };
   },
 
   /**
@@ -47,10 +61,11 @@ OAuth2.adapter('twingl', {
    * refreshToken {String} and expiresIn {Int}
    */
   parseAccessToken: function(response) {
+    var parsedResponse = JSON.parse(response);
     return {
-      accessToken: '',
-      refreshToken: '',
-      expiresIn: Number.MAX_VALUE
+      accessToken: parsedResponse.access_token,
+      refreshToken: parsedResponse.refresh_token,
+      expiresIn: parsedResponse.expires_in
     };
   }
 });
