@@ -11,23 +11,15 @@
     };
 
     function Auth(element, options) {
-      Auth.__super__.constructor.apply(this, arguments);
-      console.log(this.options.token);
-      this.setToken(this.options.token);
-    }
-
-    Auth.prototype.setToken = function(token) {
-      console.log("Returning a token", this.token);
-      return this.token = token;
-    };
-
-    Auth.prototype.updateHeaders = function() {
       var current;
+      Auth.__super__.constructor.apply(this, arguments);
+      console.log("Initializing OAuth plugin");
+      this.token = options.token;
       current = this.element.data('annotator:headers');
-      return this.element.data('annotator:headers', $.extend(current, {
+      this.element.data('annotator:headers', $.extend(current, {
         'Authorization': "Bearer " + this.token
       }));
-    };
+    }
 
     Auth.prototype.withToken = function(callback) {
       if (callback != null) {
