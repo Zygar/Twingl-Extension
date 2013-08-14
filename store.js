@@ -172,7 +172,10 @@ Annotator.Plugin.Store = (function(_super) {
     method = this._methodFor(action);
     opts = {
       type: method,
-      headers: this.element.data('annotator:headers'),
+      // headers: this.element.data('annotator:headers'),
+      headers: {
+        'Authorization': 'Bearer 33e4408cd060e8f34ae3553d20db312b8fc3382da2d506619609c398d1a926c2'
+      },
       dataType: "json",
       success: onSuccess || function() {},
       error: this._onError
