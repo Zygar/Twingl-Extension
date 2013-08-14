@@ -203,6 +203,19 @@ Annotator.Plugin.Store = (function(_super) {
       data: data,
       contentType: "application/json; charset=utf-8"
     });
+
+    // Wherein I try to add Doorkeeper's token to all request headers. 
+    // This doesn't seem to work. I don't know why. 
+    chrome.runtime.sendMessage({
+      request: "auth_token"
+    }, function(response) {
+      window.twingl_auth_token = response.token;
+      console.log(window.twingl_auth_token); 
+      opts.headers = $.extend(opts.headers, {
+        'Authorization': 'Bearer ' + window.twingl_auth_token
+      });
+    });
+    console.log(opts)
     return opts;
   };
 
