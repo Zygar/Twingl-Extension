@@ -172,10 +172,7 @@ Annotator.Plugin.Store = (function(_super) {
     method = this._methodFor(action);
     opts = {
       type: method,
-      // headers: this.element.data('annotator:headers'),
-      headers: {
-        'Authorization': 'Bearer 33e4408cd060e8f34ae3553d20db312b8fc3382da2d506619609c398d1a926c2'
-      },
+      headers: this.element.data('annotator:headers'),
       dataType: "json",
       success: onSuccess || function() {},
       error: this._onError
@@ -206,19 +203,6 @@ Annotator.Plugin.Store = (function(_super) {
       data: data,
       contentType: "application/json; charset=utf-8"
     });
-
-    // Wherein I try to add Doorkeeper's token to all request headers. 
-    // This doesn't seem to work. I don't know why. 
-    chrome.runtime.sendMessage({
-      request: "auth_token"
-    }, function(response) {
-      window.twingl_auth_token = response.token;
-      console.log(window.twingl_auth_token); 
-      opts.headers = $.extend(opts.headers, {
-        'Authorization': 'Bearer ' + window.twingl_auth_token
-      });
-    });
-    console.log(opts)
     return opts;
   };
 
