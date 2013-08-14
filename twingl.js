@@ -1,5 +1,7 @@
-
-
+/* Twingl Content Script 
+ * Everything that touches the page happens here. 
+ * We grab a copy of the token and when that’s ready, we initialise Annotator. 
+ */ 
 
 Annotator.Plugin.Synapses = (function() {
   function Synapses(element, options) {
