@@ -25,8 +25,9 @@ chrome.runtime.sendMessage({
   request: "auth_token"
 }, function(response) {
   console.log(response.token); 
+  var token = response.token
   $(document.body).annotator().annotator('addPlugin', 'HelloWorld').annotator('addPlugin', 'Auth', {
-    token: response.token
+    token: "841ae95d235d36396c31a31c7f7f3f49b38b89f61d1aac8ec84a0dc6183674ce"
   }).annotator('addPlugin', 'Store', {
     prefix: 'http://api.local.dev:5000/flux/',
     urls: {

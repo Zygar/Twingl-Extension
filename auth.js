@@ -12,6 +12,7 @@
 
     function Auth(element, options) {
       Auth.__super__.constructor.apply(this, arguments);
+      console.log(this.options.token);
       this.setToken(this.options.token);
     }
 
