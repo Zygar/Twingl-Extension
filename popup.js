@@ -1,16 +1,19 @@
-// Copyright (c) 2012 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// I don't even know if this is where we want to do Auth.
+// I do know that we will need Annotator's Auth plugin,
+// which in turn will access a cached token.  
 
-/**
- * Global variable containing the query we'd like to pass to Flickr. In this
- * case, kittens!
- *
- * @type {string}
- */
+var twingl = chrome.extension.getBackgroundPage().twingl;
 
-// Run our kitten generation script as soon as the document's DOM is ready.
-// This is where we'll inject Annotator, I believe.
 document.addEventListener('DOMContentLoaded', function () {
-   
+  if(twingl.getAccessToken()) { 
+    $("#sign-out").click(function(){
+      twingl.clearAccessToken();
+    })  
+  }
+  else {
+   $("#sign-out").click(function(){
+      twingl.authorize();
+    })   
+  }
+  
 });
