@@ -14,16 +14,16 @@
     {
       "matches": ["<all_urls>"],
       "exclude_matches": ["*://medium.com/*", "*://kippt.com/*"], // TODO: We need a way to exclude URL patterns. // NB: This could also report problem sites.
-      "css": ["annotator.min.css"],
-      "js": ["jquery-2.0.3.min.js", "annotator.min.js", "auth.js", "store.js", "twingl.js"]
+      "css": ["vendor/annotator/annotator.min.css"],
+      "js": ["vendor/jquery-2.0.3.min.js", "vendor/annotator/annotator.min.js", "vendor/annotator/plugins/oauth.js", "vendor/annotator/plugins/store.js", "twingl_content.js"]
     },
     {
       "matches": ["http://local.dev:5000/robots.txt*"],
-      "js": ["oauth2/oauth2_inject.js"],
+      "js": ["vendor/oauth2/oauth2_inject.js"],
       "run_at": "document_start"
     }
   ],
   "background": {
-    "scripts": ["/oauth2/oauth2.js", "background.js"]
+    "scripts": ["vendor/oauth2/oauth2.js", "background.js"]
   }
 }
