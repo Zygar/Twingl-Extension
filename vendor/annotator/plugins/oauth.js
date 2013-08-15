@@ -13,7 +13,6 @@
     function Auth(element, options) {
       var current;
       Auth.__super__.constructor.apply(this, arguments);
-      console.log("Initializing OAuth plugin");
       this.token = options.token;
       current = this.element.data('annotator:headers');
       this.element.data('annotator:headers', $.extend(current, {

@@ -3,12 +3,14 @@ var twingl = new OAuth2('twingl', {
   client_secret: '13ade21bbe4c9084823cfa2984832c41baaa64aacbfc2531ee052c700f779f7d',
   api_scope: 'private'
 });
+console.log(twingl)
 
 // Run our kitten generation script as soon as the document's DOM is ready.
 // This is where we'll inject Annotator, I believe.
 document.addEventListener('DOMContentLoaded', function () {
  
   twingl.authorize(function() {
+    console.log("Authorise has fired")
     var API_URL = "http://api.local.dev:5000/api/flux/";
 
     if (twingl.getAccessToken()) {

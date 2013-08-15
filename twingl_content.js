@@ -3,26 +3,6 @@
  * We grab a copy of the token and when that’s ready, we initialise Annotator. 
  */ 
 
-Annotator.Plugin.Synapses = (function() {
-  function Synapses(element, options) {
-    this.element = element;
-    this.options = options;
-    console.log("Hello World!");
-  }
-
-  Synapses.prototype.pluginInit = function() {
-    console.log("Initialized with annotator: ", this.annotator);
-    this.annotator.editor.addField({
-      label: 'Test',
-      load: function(field, annotation) {
-
-      }
-    })
-  };
-
-  return Synapses;
-})();
-
 chrome.runtime.sendMessage({
   request: "auth_token"
 }, function(response) {
@@ -38,19 +18,13 @@ chrome.runtime.sendMessage({
       update:  'highlights/:id?context=' + window.location,
       destroy: 'highlights/:id?context=' + window.location
     }
-  });  
+  }).append("<div id='synapser'><ul><li class='retrieved-highlight' id='124'>This is a highlight. We'll load them all.</li></ul></div>");
+  $('.retrieved-highlight').click(function() {
+    console.log("Click!");
+    $(this).toggleClass("synapse-selected")
+  })
+  $('#synapser').append("<button id='synapser-close'>Close</button>");
+  $('#synapser-close').click(function(){
+    $("#synapser").toggleClass("visible")
+  })
 });
-
-
-
-
-/*********
-
-This is an example of Chrome's message API. 
-In this case, I used it to get a copy of the token (which turned out to be unnecessary.)
-However, it could be used to check if a token exists, and throw Annotator into 
-"Read Only" mode if not.
-*/
-
-
-/****************/ 

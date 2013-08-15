@@ -6,12 +6,14 @@ var twingl = chrome.extension.getBackgroundPage().twingl;
 
 document.addEventListener('DOMContentLoaded', function () {
   if(twingl.getAccessToken()) { 
+    console.log("There's a token!")
     $("#sign-out").click(function(){
       twingl.clearAccessToken();
     })  
   }
   else {
    $("#sign-out").click(function(){
+      console.log("No token.")
       twingl.authorize();
     })   
   }
