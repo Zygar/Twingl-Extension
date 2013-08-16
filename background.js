@@ -1,17 +1,17 @@
 var twingl = new OAuth2('twingl', {
-  client_id: '88b8a3ee21184a109ec90c7870571ac4c4c9a599cb54dd8cefff9b1e8b80ebac',
-  client_secret: '13ade21bbe4c9084823cfa2984832c41baaa64aacbfc2531ee052c700f779f7d',
+  client_id: '94da4493b8c761a20c1a3b4d532d9ab301745c137b88a574298dc1ebe99d5b14',
+  client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
   api_scope: 'private'
 });
 console.log(twingl)
 
 // Run our kitten generation script as soon as the document's DOM is ready.
 // This is where we'll inject Annotator, I believe.
-document.addEventListener('DOMContentLoaded', function () {
- 
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("This probably only fires once.");
   twingl.authorize(function() {
     console.log("Authorise has fired")
-    var API_URL = "http://api.local.dev:5000/api/flux/";
+    var API_URL = "http://api.twin.gl/api/flux/";
 
     if (twingl.getAccessToken()) {
       window.token = twingl.getAccessToken();
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function(event) {
         if (xhr.readyState == 4) {
-          if(xhr.status == 200) {
+          if (xhr.status == 200) {
             // Great success: parse response with JSON
             $('#message').text(xhr.response);
 
@@ -46,10 +46,13 @@ document.addEventListener('DOMContentLoaded', function () {
     the content script whether or not a user is logged in.*/
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
-    if (request.request == "auth_token")
-      sendResponse({token: window.token});
+    console.log(sender.tab + sender.tab.url);
+    if (request.request == "auth_token") {
+      //twingl.authorize();
+      console.log("We Be Authin'")
+      sendResponse({
+        token: window.token
+      });
+    }
   });
 /****/
