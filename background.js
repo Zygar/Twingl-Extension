@@ -3,15 +3,12 @@ var twingl = new OAuth2('twingl', {
   client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
   api_scope: 'private'
 });
-console.log(twingl)
 
-// Run our kitten generation script as soon as the document's DOM is ready.
-// This is where we'll inject Annotator, I believe.
 document.addEventListener('DOMContentLoaded', function() {
-  console.log("This probably only fires once.");
+  console.log("This will only fire when extension is initialised.");
   twingl.authorize(function() {
-    console.log("Authorise has fired")
     var API_URL = "http://api.twin.gl/api/flux/";
+    console.log("We have sent an auth request!")
 
     if (twingl.getAccessToken()) {
       window.token = twingl.getAccessToken();
@@ -48,11 +45,9 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     console.log(sender.tab + sender.tab.url);
     if (request.request == "auth_token") {
-      //twingl.authorize();
-      console.log("We Be Authin'")
+      console.log("This will fire every time a page is loaded.")
       sendResponse({
         token: window.token
       });
     }
   });
-/****/
