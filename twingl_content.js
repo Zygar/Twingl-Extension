@@ -18,9 +18,10 @@ chrome.runtime.sendMessage({
     url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
     type: "GET",
     success: function(data) {
-      console.log(data)
+      renderHighlightsList(data);
     }
   });
+
   $(document.body).annotator().annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
     token: response.token
   }).annotator('addPlugin', 'Store', {
@@ -40,4 +41,11 @@ chrome.runtime.sendMessage({
   $('#synapser-close').click(function() {
     $("#synapser").toggleClass("visible");
   });
+  function renderHighlightsList(data) {
+    for (var i = data.length - 1; i >= 0; i--) {
+      current = data[i];
+      console.log(current);
+      $("#synapser ul").append("<li class='retrieved-highlight' id="+ current.id +">"+current.quote + "</li>")
+    };
+  }
 });
