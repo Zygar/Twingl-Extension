@@ -52,13 +52,23 @@ chrome.runtime.sendMessage({
 });
 
 function initSynapser(id) {
-  console.log("Woo! We've initialised the synapser with ID " + id );
 
+  console.log("Woo! We've initialised the synapser with ID " + id);
+  var currentTwinglings = [];
   $.ajax({
-    url: "http://api.twin.gl/flux/highlights/"+id+"/twinglings",
+    url: "http://api.twin.gl/flux/highlights/" + id + "/twinglings",
     type: "GET",
     success: function(data) {
-      console.log(data)
+      for (var i = data.length - 1; i >= 0; i--) {
+        if (data[i].end_id != id) {
+          currentTwinglings.push(data[i].end_id)
+        } else if (data[i].start_id != id) {
+          currentTwinglings.push(data[i].start_id)
+        } else {
+          console.log("I don't know when this would fire.")
+        }
+        checkHighlights(currentTwinglings);
+      };
     }
   });
 
@@ -69,13 +79,22 @@ function initSynapser(id) {
   $synapser.addClass("visible")
 
   
-  $highlights.each(function(i){
-    var local_id = $(this).data("id");
-    console.log(i, local_id);
-    if(local_id == id) {
-      $(this).addClass("current");
-    }
-  })
+  function checkHighlights(currentTwinglings) {
+    $highlights.each(function(i) {
+      var local_id = $(this).data("id");
+      console.log(i, local_id);
+      if (local_id == id) {
+        $(this).addClass("current");
+      } else {
+        for (var i = currentTwinglings.length - 1; i >= 0; i--) {
+          if (currentTwinglings[i] == local_id) {
+            $(this).addClass("twingled")
+          }
+        };
+      }
+    })
+  }
+
 }
 
 function closeSynapser() {
