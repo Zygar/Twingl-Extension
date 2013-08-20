@@ -32,20 +32,36 @@ chrome.runtime.sendMessage({
       update:   'highlights/:id?context=' + window.location,
       destroy:  'highlights/:id?context=' + window.location
     }
-  }).append("<div id='synapser'><ul><li class='retrieved-highlight' id='124'>This is a highlight. We'll load them all.</li></ul></div>");
-  $('.retrieved-highlight').click(function() {
-    console.log("Click!");
-    $(this).toggleClass("synapse-selected")
-  });
+  }).append("<div id='synapser'><ul></ul></div>");
   $('#synapser').append("<button id='synapser-close'>Close</button>");
   $('#synapser-close').click(function() {
     $("#synapser").toggleClass("visible");
   });
+  
   function renderHighlightsList(data) {
     for (var i = data.length - 1; i >= 0; i--) {
       current = data[i];
       console.log(current);
       $("#synapser ul").append("<li class='retrieved-highlight' id="+ current.id +">"+current.quote + "</li>")
     };
+    $('.retrieved-highlight').click(function() {
+      console.log("Click!");
+      $(this).toggleClass("synapse-selected")
+    });
   }
 });
+
+function initSynapser(id) {
+  console.log("Woo! We've initialised the synapser with ID" + id )
+}
+
+/*On page load, "modal" is created and all highlights are loaded in.
+  (If a highlight gets added over the course of this instance, we'll append it. )
+When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight. 
+  This will:
+    Grey out current highlight (no self synapses)
+    Turn all highlights that are synapsed-to (or from), green. 
+      To do this, we need to: 
+        Retrieve /twinglings for current highlight. This will return an array of inbound/outbound Twinglings. 
+        Normalise end_id and start_id; filtering out anything which matches current_id 
+        Change style of all highlights that match IDs in this list.  */

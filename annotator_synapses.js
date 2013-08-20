@@ -12,17 +12,24 @@ Annotator.Plugin.Synapses = (function() {
         //console.log(field, annotation);
       }
     });
+
     this.annotator.subscribe("annotationEditorShown", function(editor, annotation){
-      //console.log(editor, annotation);
+      //console.log(annotation);
+      var currentAnnotation = annotation; 
+      
+      function openSynapser(event) {
+        console.log(event.data);
+        initSynapser(event.data.id);
+      }
+
       if (synapseInjected != true) {
         $("#annotator-field-1").after("<button id='synapse'>Synapse</button>")
-        /*On click, we open a synapse window (that's already injected) with the highlight id passed to it. That's the only hard part, changing the param */
-        $("#synapse").click(function() {
-          console.log("Synapse window must now open");
-          console.log(annotation);
-          $("#synapser").toggleClass('visible'); // This isn't how we'll do it. 
-        })
         synapseInjected = true;
+        $("#synapse").on("click", currentAnnotation, openSynapser);
+      }
+      else {
+        $("#synapse").off("click");
+        $("#synapse").on("click", currentAnnotation, openSynapser);
       }
     })
   };
