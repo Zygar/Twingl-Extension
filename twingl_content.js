@@ -42,7 +42,7 @@ chrome.runtime.sendMessage({
     for (var i = data.length - 1; i >= 0; i--) {
       current = data[i];
       console.log(current);
-      $("#synapser ul").append("<li class='retrieved-highlight' id="+ current.id +">"+current.quote + "</li>")
+      $("#synapser ul").append("<li class='retrieved-highlight' data-id="+ current.id +">"+current.quote + "</li>")
     };
     $('.retrieved-highlight').click(function() {
       console.log("Click!");
@@ -52,9 +52,27 @@ chrome.runtime.sendMessage({
 });
 
 function initSynapser(id) {
-  console.log("Woo! We've initialised the synapser with ID" + id )
+  console.log("Woo! We've initialised the synapser with ID " + id );
+
+  $synapser = $("#synapser");
+  $highlights = $("#synapser ul li");
+
+  // $synapser.data("hl_id", id);
+  $synapser.addClass("visible")
+
+  
+  $highlights.each(function(i){
+    var local_id = $(this).data("id");
+    console.log(i, local_id);
+    if(local_id == id) {
+      $(this).addClass("current");
+    }
+  })
 }
 
+function closeSynapser() {
+  // Remove ID, reset style of all highlights.
+}
 /*On page load, "modal" is created and all highlights are loaded in.
   (If a highlight gets added over the course of this instance, we'll append it. )
 When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight. 
