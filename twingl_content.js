@@ -1,4 +1,4 @@
-/* Twingl Content Script 
+/* Twingl Content Script
  * Everything that touches the page happens here.
  * We grab a copy of the token and when that’s ready, we initialise Annotator.
  */
@@ -27,22 +27,22 @@ chrome.runtime.sendMessage({
   }).annotator('addPlugin', 'Store', {
     prefix: 'http://api.twin.gl/flux/',
     urls: {
-      create:   'highlights?context=' + window.location,
-      read:     'highlights/:id?context=' + window.location,
-      update:   'highlights/:id?context=' + window.location,
-      destroy:  'highlights/:id?context=' + window.location
+      create: 'highlights?context=' + window.location,
+      read: 'highlights/:id?context=' + window.location,
+      update: 'highlights/:id?context=' + window.location,
+      destroy: 'highlights/:id?context=' + window.location
     }
   }).append("<div id='synapser'><ul></ul></div>");
   $('#synapser').append("<button id='synapser-close'>Close</button>");
   $('#synapser-close').click(function() {
     $("#synapser").toggleClass("visible");
   });
-  
+
   function renderHighlightsList(data) {
     for (var i = data.length - 1; i >= 0; i--) {
       current = data[i];
       console.log(current);
-      $("#synapser ul").append("<li class='retrieved-highlight' data-id="+ current.id +">"+current.quote + "</li>")
+      $("#synapser ul").append("<li class='retrieved-highlight' data-id=" + current.id + ">" + current.quote + "</li>")
     };
     $('.retrieved-highlight').click(function() {
       console.log("Click!");
@@ -78,7 +78,7 @@ function initSynapser(id) {
   // $synapser.data("hl_id", id);
   $synapser.addClass("visible")
 
-  
+
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
       var local_id = $(this).data("id");
@@ -102,11 +102,11 @@ function closeSynapser() {
 }
 /*On page load, "modal" is created and all highlights are loaded in.
   (If a highlight gets added over the course of this instance, we'll append it. )
-When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight. 
+When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight.
   This will:
     -Grey out current highlight (no self synapses)-
-    Turn all highlights that are synapsed-to (or from), green. 
-      To do this, we need to: 
-        Retrieve /twinglings for current highlight. This will return an array of inbound/outbound Twinglings. 
-        Normalise end_id and start_id; filtering out anything which matches current_id 
+    Turn all highlights that are synapsed-to (or from), green.
+      To do this, we need to:
+        Retrieve /twinglings for current highlight. This will return an array of inbound/outbound Twinglings.
+        Normalise end_id and start_id; filtering out anything which matches current_id
         Change style of all highlights that match IDs in this list.  */
