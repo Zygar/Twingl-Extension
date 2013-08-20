@@ -55,10 +55,23 @@ function initSynapser(id) {
 
   console.log("Woo! We've initialised the synapser with ID " + id);
   var currentTwinglings = [];
+  $synapser = $("#synapser");
+  $highlights = $("#synapser ul li");
+  $synapser.addClass("visible");
+
+  /* Retrieve Twinglings */
   $.ajax({
     url: "http://api.twin.gl/flux/highlights/" + id + "/twinglings",
     type: "GET",
     success: function(data) {
+      /* We retrieve all Twinglings attached to the highlight from which
+         the Twingler was initialised. 
+
+         Then, we stuff start_id/end_id into a one-dimensional array: dropping 
+         any ID which matches the current ID.
+
+         Finally, we initialise the "Highlight Checker" */
+
       for (var i = data.length - 1; i >= 0; i--) {
         if (data[i].end_id != id) {
           currentTwinglings.push(data[i].end_id)
@@ -72,20 +85,17 @@ function initSynapser(id) {
     }
   });
 
-  $synapser = $("#synapser");
-  $highlights = $("#synapser ul li");
-
-  // $synapser.data("hl_id", id);
-  $synapser.addClass("visible")
-
+  /* Check retrieved highlights, change behaviour according to data 
+       What is this highlight Twingled with? Highlight it! 
+       What is the current highlight? Grey it out.
+  */
 
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
-      var local_id = $(this).data("id");
-      console.log(i, local_id);
-      if (local_id == id) {
+      var local_id = $(this).data("id"); // Cache ID of each highlight in the list.
+      if (local_id == id) { // Exclude active highlight from the list. 
         $(this).addClass("current");
-      } else {
+      } else { // Look for any highlights where the ID matches *anything* in the currentTwinglings array.
         for (var i = currentTwinglings.length - 1; i >= 0; i--) {
           if (currentTwinglings[i] == local_id) {
             $(this).addClass("twingled")
