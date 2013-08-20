@@ -7,7 +7,20 @@ chrome.runtime.sendMessage({
   request: "auth_token"
 }, function(response) {
   console.log(response.token);
-  var token = response.token
+  var token = response.token;
+
+  $.ajaxSetup({
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  });
+  $.ajax({
+    url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
+    type: "GET",
+    success: function(data) {
+      console.log(data)
+    }
+  });
   $(document.body).annotator().annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
     token: response.token
   }).annotator('addPlugin', 'Store', {
