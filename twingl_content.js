@@ -54,6 +54,14 @@ chrome.runtime.sendMessage({
 function initSynapser(id) {
   console.log("Woo! We've initialised the synapser with ID " + id );
 
+  $.ajax({
+    url: "http://api.twin.gl/flux/highlights/"+id+"/twinglings",
+    type: "GET",
+    success: function(data) {
+      console.log(data)
+    }
+  });
+
   $synapser = $("#synapser");
   $highlights = $("#synapser ul li");
 
@@ -77,7 +85,7 @@ function closeSynapser() {
   (If a highlight gets added over the course of this instance, we'll append it. )
 When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight. 
   This will:
-    Grey out current highlight (no self synapses)
+    -Grey out current highlight (no self synapses)-
     Turn all highlights that are synapsed-to (or from), green. 
       To do this, we need to: 
         Retrieve /twinglings for current highlight. This will return an array of inbound/outbound Twinglings. 
