@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             $('#message').text(xhr.response);
 
           } else {
-            // Request failure: something bad happened
+            // In our server there is problem.
             $('#message').text('Error. Status returned: ' + xhr.status);
           }
         }
