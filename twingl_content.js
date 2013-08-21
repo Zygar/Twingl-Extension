@@ -143,11 +143,11 @@ function closeSynapser() {
 
 
 var updateHighlightList = {
-  add: function(id) {
-    console.log("Adding " + id);
+  add: function(annotation) {
+    $("#synapser ul").prepend("<li class='retrieved-highlight' data-id=" + annotation.id + ">" + annotation.quote + "</li>")
   },
-  remove: function(id) {
-    console.log("Removing " + id)
+  remove: function(annotation) {
+    $("*[data-id="+annotation.id+"]").remove();
   }
 }
 
