@@ -100,9 +100,16 @@ function initSynapser(id) {
           if (currentTwinglings[i] == local_id) {
             $(this).addClass("twingled")
           }
+          else {
+            console.log(local_id);
+            $(this).on("click", local_id, function(event){
+              console.log(event.data);
+            })
+          }
         };
       }
-    })
+    });
+
   }
 
 }
