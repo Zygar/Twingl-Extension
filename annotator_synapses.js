@@ -33,8 +33,8 @@ Annotator.Plugin.Synapses = (function() {
       }
     })
     
-    this.annotator.subscribe("annotationUpdated", function(annotation){
-      console.log(annotation, annotation.quote);
+    this.annotator.subscribe("annotationDeleted", function(annotation){
+      updateHighlightList.remove(annotation.id);
     });
     
 
