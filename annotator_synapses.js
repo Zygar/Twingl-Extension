@@ -32,9 +32,13 @@ Annotator.Plugin.Synapses = (function() {
         $("#synapse").on("click", currentAnnotation, openSynapser);
       }
     })
-    
+    console.log(this, this.annotator);
     this.annotator.subscribe("annotationDeleted", function(annotation){
       updateHighlightList.remove(annotation.id);
+    });
+
+    this.annotator.subscribe("successfulCreation", function(annotation){
+      updateHighlightList.add(annotation.id);
     });
     
 

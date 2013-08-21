@@ -63,8 +63,7 @@ Annotator.Plugin.Store = (function(_super) {
         if (data.id == null) {
           console.warn(Annotator._t("Warning: No ID returned from server for annotation "), annotation);
         }
-        console.log("I don't know")
-        updateHighlightList.add(data.id);
+        _this.annotator.publish("annotationCreatedSuccess", data);
         return _this.updateAnnotation(annotation, data);
       });
     } else {
