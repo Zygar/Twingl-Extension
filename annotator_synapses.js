@@ -32,7 +32,12 @@ Annotator.Plugin.Synapses = (function() {
         $("#synapse").on("click", currentAnnotation, openSynapser);
       }
     })
-  };
+    
+    this.annotator.subscribe("annotationUpdated", function(annotation){
+      console.log(annotation, annotation.quote);
+    });
+    
 
+  };
   return Synapses;
 })();
