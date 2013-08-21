@@ -1,5 +1,6 @@
 Annotator.Plugin.Synapses = (function() {
-  var synapseInjected = false; 
+  var synapseInjected = false;
+
   function Synapses(element, options) {
     this.element = element;
     this.options = options;
@@ -13,10 +14,10 @@ Annotator.Plugin.Synapses = (function() {
       }
     });
 
-    this.annotator.subscribe("annotationEditorShown", function(editor, annotation){
+    this.annotator.subscribe("annotationEditorShown", function(editor, annotation) {
       //console.log(annotation);
-      var currentAnnotation = annotation; 
-      
+      var currentAnnotation = annotation;
+
       function openSynapser(event) {
         console.log(event.data);
         initSynapser(event.data.id);
@@ -26,8 +27,7 @@ Annotator.Plugin.Synapses = (function() {
         $("#annotator-field-1").after("<button id='synapse'>Synapse</button>")
         synapseInjected = true;
         $("#synapse").on("click", currentAnnotation, openSynapser);
-      }
-      else {
+      } else {
         $("#synapse").off("click");
         $("#synapse").on("click", currentAnnotation, openSynapser);
       }
