@@ -34,11 +34,12 @@ Annotator.Plugin.Synapses = (function() {
     })
     
     this.annotator.subscribe("annotationDeleted", function(annotation){
-      updateHighlightList.remove(annotation.id);
+      updateHighlightList.remove(annotation);
     });
 
     this.annotator.subscribe("annotationCreatedSuccess", function(annotation){
-      updateHighlightList.add(annotation.id);
+      console.log("Great success! Annotation created with ID" + annotation.id)
+      updateHighlightList.add(annotation);
     });
     
 

@@ -1,13 +1,13 @@
 var twingl = new OAuth2('twingl', {
-  client_id: '94da4493b8c761a20c1a3b4d532d9ab301745c137b88a574298dc1ebe99d5b14',
-  client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
+  client_id: 'a3b14acebc6accce03312c6946e2982ee751d293cd2a3609ec8614f2eeade3ed',
+  client_secret: 'e3f251a52c568b0692e3a8ef197817611dc087b25b652205d6243ddd482c4ea5',
   api_scope: 'private'
 });
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("This will only fire when extension is initialised.");
   twingl.authorize(function() {
-    var API_URL = "http://api.twin.gl/api/flux/";
+    var API_URL = "http://sandbox.twin.gl/api/flux/";
     console.log("We have sent an auth request!")
 
     if (twingl.getAccessToken()) {
