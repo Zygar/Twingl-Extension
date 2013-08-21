@@ -80,8 +80,8 @@ function initSynapser(id) {
         } else {
           console.log("I don't know when this would fire.")
         }
-        checkHighlights(currentTwinglings);
       };
+      checkHighlights(currentTwinglings);
     }
   });
 
@@ -95,21 +95,25 @@ function initSynapser(id) {
       var local_id = $(this).data("id"); // Cache ID of each highlight in the list.
       if (local_id == id) { // Exclude active highlight from the list. 
         $(this).addClass("current");
-        
-      } else { // Look for any highlights where the ID matches *anything* in the currentTwinglings array.
+
+      } else if (currentTwinglings.length > 0) { // Look for any highlights where the ID matches *anything* in the currentTwinglings array.
         for (var i = currentTwinglings.length - 1; i >= 0; i--) {
           if (currentTwinglings[i] == local_id) {
             $(this).addClass("twingled");
-            
-          }
-          else {
-            console.log(local_id);
-            $(this).on("click", function(event){
+          } else {
+            console.log("Twinglings found", local_id);
+            $(this).on("click", function(event) {
               // OH! If we define the click event inside of a loop, then defining the event.data is redundant
               submitTwingling(id, local_id);
             })
           }
         };
+      } else {
+        console.log("No twinglings found", local_id);
+        $(this).on("click", function(event) {
+          // OH! If we define the click event inside of a loop, then defining the event.data is redundant
+          submitTwingling(id, local_id);
+        })
       }
     });
 
@@ -117,7 +121,7 @@ function initSynapser(id) {
 
 }
 
-function submitTwingling (source, dest) {
+function submitTwingling(source, dest) {
   $.ajax({
     url: "http://api.twin.gl/flux/twinglings",
     type: "POST",
@@ -127,7 +131,7 @@ function submitTwingling (source, dest) {
       end_type: "highlights",
       end_id: dest
     },
-    success: function(data){
+    success: function(data) {
       console.log(data)
     }
   })
