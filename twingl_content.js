@@ -28,9 +28,9 @@ chrome.runtime.sendMessage({
     prefix: 'http://api.twin.gl/flux/',
     urls: {
       create: 'highlights?context=' + window.location,
-      read: 'highlights/:id?context=' + window.location,
-      update: 'highlights/:id?context=' + window.location,
-      destroy: 'highlights/:id?context=' + window.location
+      read: 'highlights/?context=' + window.location,
+      update: 'highlights/:id',
+      destroy: 'highlights/:id'
     }
   }).append("<div id='synapser'><ul></ul></div>");
   $('#synapser').append("<button id='synapser-close'>Close</button>");
@@ -41,7 +41,7 @@ chrome.runtime.sendMessage({
   function renderHighlightsList(data) {
     for (var i = data.length - 1; i >= 0; i--) {
       current = data[i];
-      console.log(current);
+      //console.log(current);
       $("#synapser ul").append("<li class='retrieved-highlight' data-id=" + current.id + ">" + current.quote + "</li>")
     };
     $('.retrieved-highlight').click(function() {
@@ -65,9 +65,9 @@ function initSynapser(id) {
     type: "GET",
     success: function(data) {
       /* We retrieve all Twinglings attached to the highlight from which
-         the Twingler was initialised. 
+         the Twingler was initialised.
 
-         Then, we stuff start_id/end_id into a one-dimensional array: dropping 
+         Then, we stuff start_id/end_id into a one-dimensional array: dropping
          any ID which matches the current ID.
 
          Finally, we initialise the "Highlight Checker" */
@@ -85,15 +85,15 @@ function initSynapser(id) {
     }
   });
 
-  /* Check retrieved highlights, change behaviour according to data 
-       What is this highlight Twingled with? Highlight it! 
+  /* Check retrieved highlights, change behaviour according to data
+       What is this highlight Twingled with? Highlight it!
        What is the current highlight? Grey it out.
   */
 
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
       var local_id = $(this).data("id"); // Cache ID of each highlight in the list.
-      if (local_id == id) { // Exclude active highlight from the list. 
+      if (local_id == id) { // Exclude active highlight from the list.
         $(this).addClass("current");
 
       } else if (currentTwinglings.length > 0) { // Look for any highlights where the ID matches *anything* in the currentTwinglings array.
@@ -140,6 +140,21 @@ function submitTwingling(source, dest) {
 function closeSynapser() {
   // Remove ID, reset style of all highlights.
 }
+
+
+var updateHighlightList = {
+  add: function(id) {
+    console.log("Adding " + id);
+  },
+  remove: function(id) {
+    console.log("Removing " + id)
+  }
+}
+
+// Probably need update-comment as well.
+
+
+
 /*On page load, "modal" is created and all highlights are loaded in.
   (If a highlight gets added over the course of this instance, we'll append it. )
 When "Synapse" button is hit, we show the "modal" and pass it the ID of the highlight.
