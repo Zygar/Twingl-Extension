@@ -25,7 +25,7 @@
         ]
     },
     {
-      "matches": ["http://sandbox.twin.gl/robots.txt*"],
+      "matches": ["http://api.twin.gl/robots.txt*"],
       "js": ["/oauth2/oauth2_inject.js"],
       "run_at": "document_start"
     }

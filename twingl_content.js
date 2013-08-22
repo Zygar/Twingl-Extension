@@ -15,7 +15,7 @@ chrome.runtime.sendMessage({
     }
   });
   $.ajax({
-    url: "http://sandbox.twin.gl/flux/highlights?context=twingl://mine",
+    url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
     type: "GET",
     success: function(data) {
       renderHighlightsList(data);
@@ -25,7 +25,7 @@ chrome.runtime.sendMessage({
   $(document.body).annotator().annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
     token: response.token
   }).annotator('addPlugin', 'Store', {
-    prefix: 'http://sandbox.twin.gl/flux/',
+    prefix: 'http://api.twin.gl/flux/',
     urls: {
       create: 'highlights?context=' + window.location,
       read: 'highlights/?context=' + window.location,
@@ -62,7 +62,7 @@ function initSynapser(id) {
   /* Retrieve Twinglings.
      This is somewhat blocking.  */
   $.ajax({
-    url: "http://sandbox.twin.gl/flux/highlights/" + id + "/twinglings",
+    url: "http://api.twin.gl/flux/highlights/" + id + "/twinglings",
     type: "GET",
     success: function(data) {
       /* We retrieve all Twinglings attached to the highlight from which
@@ -126,7 +126,7 @@ function initSynapser(id) {
 
 function submitTwingling(source, dest) {
   $.ajax({
-    url: "http://sandbox.twin.gl/flux/twinglings",
+    url: "http://api.twin.gl/flux/twinglings",
     type: "POST",
     data: {
       start_type: "highlights",

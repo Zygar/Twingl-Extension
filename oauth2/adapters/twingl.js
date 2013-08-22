@@ -3,7 +3,7 @@ OAuth2.adapter('twingl', {
    * @return {URL} URL to the page that returns the authorization code
    */
   authorizationCodeURL: function(config) {
-    return 'http://sandbox.twin.gl/oauth/authorize?\
+    return 'http://api.twin.gl/oauth/authorize?\
 response_type=code&client_id={{CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&scope={{API_SCOPE}}'
         .replace('{{CLIENT_ID}}', config.clientId)
         .replace('{{REDIRECT_URI}}', this.redirectURL(config))
@@ -15,7 +15,7 @@ response_type=code&client_id={{CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&scope={
    * script into
    */
   redirectURL: function(config) {
-    return 'http://sandbox.twin.gl/robots.txt';
+    return 'http://api.twin.gl/robots.txt';
   },
 
   /**
@@ -33,7 +33,7 @@ response_type=code&client_id={{CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&scope={
    * @return {URL} URL to the access token providing endpoint
    */
   accessTokenURL: function() {
-    return 'http://sandbox.twin.gl/oauth/token';
+    return 'http://api.twin.gl/oauth/token';
   },
 
   /**
