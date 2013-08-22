@@ -147,7 +147,14 @@ function submitTwingling(source, dest) {
 }
 
 function deleteTwingling(id) {
-  console.log("Now we will delete " + id )
+  console.log("Now we will delete " + id );
+  $.ajax({
+    url: "http://api.twin.gl/flux/twinglings/" + id,
+    type: "DELETE",
+    success: function(data) {
+      console.log("Great success! Twingling is very delete.")
+    }
+  })
 }
 
 var updateHighlightList = {
