@@ -72,20 +72,25 @@ function initSynapser(id) {
          any ID which matches the current ID.
 
          Finally, we initialise the "Highlight Checker" */
-
+      var allTwinglings = data;
       for (var i = data.length - 1; i >= 0; i--) {
-        if (data[i].end_id != id) {
-          console.log(data[i].end_id)
-          currentTwinglings.push(data[i].end_id)
-        } else if (data[i].start_id != id) {
-          console.log(data[i].start_id)
-          currentTwinglings.push(data[i].start_id)
-        } else {
-          console.log("I don't know when this would fire.")
+        var currentTwingling = {
+          id: data[i].id,
+          dest_id: null 
         }
+        if (data[i].end_id != id) {
+          currentTwingling.dest_id = data[i].end_id;
+          //currentTwinglings.push(currentTwingling); // Do these need to be in the if/else blocks?
+        } else if (data[i].start_id != id) {
+          currentTwingling.dest_id = data[i].start_id;
+          //currentTwinglings.push(currentTwingling);
+        } else {
+          console.error("If this fires, something has gone seriously wrong. I'm not sure what that could be.")
+        }
+        currentTwinglings.push(currentTwingling);
       };
       checkHighlights(currentTwinglings);
-      console.log(currentTwinglings)
+      //console.log(currentTwinglings);
     }
   });
 
@@ -101,16 +106,17 @@ function initSynapser(id) {
       if (local_id == id) { // Exclude active highlight from the list.
         $(this).addClass("current");
       } 
-      else if (currentTwinglings.length > 0) { // If there are Twinglings lready, let's add some classes
+      else if (currentTwinglings.length > 0) { 
         $(this).on("click", function(event) {
           console.log("Imma bindin' my click from " + id + " to " + local_id);
           submitTwingling(id, local_id);
         })
-        for (var i = currentTwinglings.length - 1; i >= 0; i--) {
-          if (currentTwinglings[i] == local_id) {
+        for (var i = currentTwinglings.length - 1; i >= 0; i--) { // If there are Twinglings lready, let's add some classes
+          if (currentTwinglings[i].dest_id == local_id) {
+            var thisTwingling = currentTwinglings[i]; // We need to cache this because uh something to do with object properties.
             $(this).addClass("twingled");
             $(this).off("click").on("click", function(){
-              console.log("You have clicked a Twingled thing!")
+              deleteTwingling(thisTwingling.id);
             })
           }
         };
@@ -140,11 +146,9 @@ function submitTwingling(source, dest) {
   })
 }
 
-function closeSynapser() {
-  // Remove ID, reset style of all highlights.
-
+function deleteTwingling(id) {
+  console.log("Now we will delete " + id )
 }
-
 
 var updateHighlightList = {
   add: function(annotation) {
