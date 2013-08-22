@@ -54,7 +54,7 @@ chrome.runtime.sendMessage({
 function initSynapser(id) {
   console.log("Woo! We've initialised the synapser with ID " + id);
   var currentTwinglings = [];
-  
+
   $synapser = $("#synapser");
   $highlights = $("#synapser ul li");
   $synapser.addClass("visible");
@@ -76,7 +76,7 @@ function initSynapser(id) {
       for (var i = data.length - 1; i >= 0; i--) {
         var currentTwingling = {
           id: data[i].id,
-          dest_id: null 
+          dest_id: null
         }
         if (data[i].end_id != id) {
           currentTwingling.dest_id = data[i].end_id;
@@ -100,61 +100,81 @@ function initSynapser(id) {
   */
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
-      $(this).attr('class', 'retrieved-highlight'); // Reset visual state. 
-      $(this).off("click"); // Unbind all click events. 
+      $(this).attr('class', 'retrieved-highlight'); // Reset visual state.
+      $(this).off("click"); // Unbind all click events.
       var local_id = $(this).data("id"); // Cache ID of each highlight in the list.
       if (local_id == id) { // Exclude active highlight from the list.
         $(this).addClass("current");
-      } 
-      else if (currentTwinglings.length > 0) { 
+      }
+      else if (currentTwinglings.length > 0) {
         $(this).on("click", function(event) {
           console.log("Imma bindin' my click from " + id + " to " + local_id);
-          submitTwingling(id, local_id);
+          var $element = $(this);
+          modifyTwingling.create($element, id, local_id);
         })
         for (var i = currentTwinglings.length - 1; i >= 0; i--) { // If there are Twinglings lready, let's add some classes
           if (currentTwinglings[i].dest_id == local_id) {
             var thisTwingling = currentTwinglings[i]; // We need to cache this because uh something to do with object properties.
             $(this).addClass("twingled");
             $(this).off("click").on("click", function(){
-              deleteTwingling(thisTwingling.id);
+              var $element = $(this)
+              modifyTwingling.destroy($element, thisTwingling.id);
             })
           }
         };
-      } 
+      }
       else {
         $(this).on("click", function(event) {
-          submitTwingling(id, local_id);
+          var $element = $(this)
+          modifyTwingling.create($element, id, local_id);
         })
-      } 
+      }
     }); // end $highlights.each
   } // end checkhighlights
-} // end initSynapser 
+} // end initSynapser
 
-function submitTwingling(source, dest) {
-  $.ajax({
-    url: "http://api.twin.gl/flux/twinglings",
-    type: "POST",
-    data: {
-      start_type: "highlights",
-      start_id: source,
-      end_type: "highlights",
-      end_id: dest
-    },
-    success: function(data) {
-      console.log(data, this)
-    }
-  })
-}
 
-function deleteTwingling(id) {
-  console.log("Now we will delete " + id );
-  $.ajax({
-    url: "http://api.twin.gl/flux/twinglings/" + id,
-    type: "DELETE",
-    success: function(data) {
-      console.log("Great success! Twingling is very delete.")
-    }
-  })
+
+var modifyTwingling = {
+  working: function(elem) {
+    console.log(elem);
+    elem.addClass("working"); 
+    // Add other event bindings here. 
+    // We will also want to pass it the action—whether it's creation or deletion—so that the appropriate bindings can be update on success.
+  },
+  success: function(elem) {
+    console.log(elem);
+    elem.removeClass("working");
+  },
+  create: function(elem, source, dest) {
+    this.working(elem);
+    $.ajax({
+      url: "http://api.twin.gl/flux/twinglings",
+      type: "POST",
+      data: {
+        start_type: "highlights",
+        start_id: source,
+        end_type: "highlights",
+        end_id: dest
+      },
+      success: function(data) {
+        console.log(data);
+        modifyTwingling.success(elem);
+      }
+    })
+  },
+  destroy: function(elem, id) {
+    console.log("Now we will delete " + id);
+    this.working(elem);
+    $.ajax({
+      url: "http://api.twin.gl/flux/twinglings/" + id,
+      type: "DELETE",
+      success: function(data) {
+        console.log("Great success! Twingling is very delete.");
+        modifyTwingling.success(elem);
+      }
+    })
+  }
 }
 
 var updateHighlightList = {
