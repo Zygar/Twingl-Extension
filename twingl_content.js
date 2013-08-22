@@ -94,46 +94,56 @@ function initSynapser(id) {
     }
   });
 
-  /* Check retrieved highlights, change behaviour according to data
-       What is this highlight Twingled with? Highlight it!
-       What is the current highlight? Grey it out.
-  */
+  
+  /* This is the "Event Binding" loop. It goes through each returned highlight
+     in the DOM, greys out the current highlight and "greens up" the active Twinglings.
+     It also binds up the events, naturally. */ 
+
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
-      $(this).attr('class', 'retrieved-highlight'); // Reset visual state.
-      $(this).off("click"); // Unbind all click events.
-      var local_id = $(this).data("id"); // Cache ID of each highlight in the list.
-      if (local_id == id) { // Exclude active highlight from the list.
-        $(this).addClass("current");
-      }
-      else if (currentTwinglings.length > 0) {
-        $(this).on("click", function(event) {
-          console.log("Imma bindin' my click from " + id + " to " + local_id);
-          var $element = $(this);
-          modifyTwingling.create($element, id, local_id);
-        })
-        for (var i = currentTwinglings.length - 1; i >= 0; i--) { // If there are Twinglings lready, let's add some classes
+      var $element = $(this);
+      var local_id = $element.data("id"); // Cache ID of each highlight in the list.
+      setState.clean($element);
+
+      if (local_id == id) {
+        setState.active($element);
+      } else if (currentTwinglings.length > 0) {
+        setState.twinglable($element, id, local_id);
+        for (var i = currentTwinglings.length - 1; i >= 0; i--) { 
+          /* We loop through a list of all Twinglings associated with the current highlight.
+             If any of them match the current DOM element in jQuery's $.each loop, we change its status to "Twingled".*/
           if (currentTwinglings[i].dest_id == local_id) {
-            var thisTwingling = currentTwinglings[i]; // We need to cache this because uh something to do with object properties.
-            $(this).addClass("twingled");
-            $(this).off("click").on("click", function(){
-              var $element = $(this)
-              modifyTwingling.destroy($element, thisTwingling.id);
-            })
+            var thisTwingling = currentTwinglings[i];
+            setState.twingled($element, thisTwingling.id);
           }
         };
-      }
-      else {
-        $(this).on("click", function(event) {
-          var $element = $(this)
-          modifyTwingling.create($element, id, local_id);
-        })
+      } else {
+        setState.twinglable($element, id, local_id)
       }
     }); // end $highlights.each
   } // end checkhighlights
 } // end initSynapser
 
-
+var setState = {
+  clean: function(elem) {
+    elem.attr('class', 'retrieved-highlight');
+    elem.off("click");
+  },
+  twingled: function(elem, id) {
+    elem.addClass("twingled");
+    elem.off("click").on("click", function() {
+      modifyTwingling.destroy(elem, id);
+    })
+  },
+  twinglable: function(elem, id, local_id) {
+    elem.on("click", function(event) {
+      modifyTwingling.create(elem, id, local_id);
+    })
+  },
+  active: function(elem) {
+    elem.addClass("current");
+  }
+}
 
 var modifyTwingling = {
   working: function(elem) {
@@ -176,6 +186,8 @@ var modifyTwingling = {
     })
   }
 }
+
+
 
 var updateHighlightList = {
   add: function(annotation) {
