@@ -32,7 +32,7 @@ chrome.runtime.sendMessage({
     prefix: 'http://api.twin.gl/flux/',
     urls: {
       create: 'highlights?context=' + window.location,
-      read: 'highlights/?context=' + window.location,
+      read: 'highlights/?context=' + window.location + '&expand=twinglings',
       update: 'highlights/:id',
       destroy: 'highlights/:id'
     }

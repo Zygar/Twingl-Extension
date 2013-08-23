@@ -7,6 +7,17 @@ Annotator.Plugin.Synapses = (function() {
   }
 
   Synapses.prototype.pluginInit = function() {
+    this.annotator.viewer.addField({
+      load: function(field, annotation) {
+        console.log(annotation.twinglings)
+        for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
+          console.log(annotation.twinglings[i].end_object.context_url)
+          var twingling = annotation.twinglings[i].end_object;
+
+          $(field).append("<a class='twingling' href='"+twingling.context_url+"'>" +twingling.quote+ "</a>");
+        };
+      }
+    })
     this.annotator.editor.addField({
       label: 'Synapses',
       load: function(field, annotation) {
