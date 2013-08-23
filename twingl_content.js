@@ -51,8 +51,8 @@ chrome.runtime.sendMessage({
   }
 });
 
-function initSynapser(id) {
-  console.log("Woo! We've initialised the synapser with ID " + id);
+function initSynapser(active_highlight_id) {
+  console.log("Woo! We've initialised the synapser with ID " + active_highlight_id);
   var currentTwinglings = [];
 
   $synapser = $("#synapser");
@@ -62,7 +62,7 @@ function initSynapser(id) {
   /* Retrieve Twinglings.
      This is somewhat blocking.  */
   $.ajax({
-    url: "http://api.twin.gl/flux/highlights/" + id + "/twinglings",
+    url: "http://api.twin.gl/flux/highlights/" + active_highlight_id + "/twinglings",
     type: "GET",
     success: function(data) {
       /* We retrieve all Twinglings attached to the highlight from which
@@ -75,22 +75,22 @@ function initSynapser(id) {
       var allTwinglings = data;
       for (var i = data.length - 1; i >= 0; i--) {
         var currentTwingling = {
-          id: data[i].id,
+          twingling_id: data[i].id,
           dest_id: null
         }
-        if (data[i].end_id != id) {
+        if (data[i].end_id != active_highlight_id) {
           currentTwingling.dest_id = data[i].end_id;
-          //currentTwinglings.push(currentTwingling); // Do these need to be in the if/else blocks?
-        } else if (data[i].start_id != id) {
+
+        } else if (data[i].start_id != active_highlight_id) {
           currentTwingling.dest_id = data[i].start_id;
-          //currentTwinglings.push(currentTwingling);
+          
         } else {
           console.error("If this fires, something has gone seriously wrong. I'm not sure what that could be.")
         }
         currentTwinglings.push(currentTwingling);
       };
       checkHighlights(currentTwinglings);
-      //console.log(currentTwinglings);
+     
     }
   });
 
@@ -102,92 +102,89 @@ function initSynapser(id) {
   function checkHighlights(currentTwinglings) {
     $highlights.each(function(i) {
       var $element = $(this);
-      var local_id = $element.data("id"); // Cache ID of each highlight in the list.
-      setState.clean($element);
-
-      if (local_id == id) {
+      var current_dom_id = $element.data("id"); // Cache ID of each highlight in the list.
+      if (current_dom_id == active_highlight_id) {
         setState.active($element);
       } else if (currentTwinglings.length > 0) {
-        setState.twinglable($element, id, local_id);
+        setState.twinglable($element, active_highlight_id, current_dom_id);
         for (var i = currentTwinglings.length - 1; i >= 0; i--) { 
           /* We loop through a list of all Twinglings associated with the current highlight.
              If any of them match the current DOM element in jQuery's $.each loop, we change its status to "Twingled".*/
-          if (currentTwinglings[i].dest_id == local_id) {
+          if (currentTwinglings[i].dest_id == current_dom_id) {
             var thisTwingling = currentTwinglings[i];
-            setState.twingled($element, thisTwingling.id);
+            setState.twingled($element, active_highlight_id, current_dom_id, thisTwingling.twingling_id);
           }
         };
       } else {
-        setState.twinglable($element, id, local_id)
+        setState.twinglable($element, active_highlight_id, current_dom_id)
       }
     }); // end $highlights.each
   } // end checkhighlights
 } // end initSynapser
 
 var setState = {
-  clean: function(elem) {
-    elem.attr('class', 'retrieved-highlight');
-    elem.off("click");
-  },
-  twingled: function(elem, id) {
+  twingled: function(elem, active_highlight_id, current_dom_id, twingling_id) {
     elem.addClass("twingled");
     elem.off("click").on("click", function() {
-      modifyTwingling.destroy(elem, id);
+      modifyTwingling.destroy(elem, active_highlight_id, current_dom_id, twingling_id);
     })
   },
-  twinglable: function(elem, id, local_id) {
-    elem.on("click", function(event) {
-      modifyTwingling.create(elem, id, local_id);
+  twinglable: function(elem, active_highlight_id, current_dom_id) {
+    elem.attr('class', 'retrieved-highlight');
+    elem.off("click").on("click", function(event) {
+      modifyTwingling.create(elem, active_highlight_id, current_dom_id);
     })
   },
   active: function(elem) {
-    elem.addClass("current");
+    elem.off("click");
+    elem.attr('class', 'current');
+  }, 
+  working: function(elem) {
+    elem.addClass("working"); 
+    elem.off("click");
   }
 }
 
 var modifyTwingling = {
-  working: function(elem) {
-    console.log(elem);
-    elem.addClass("working"); 
-    // Add other event bindings here. 
-    // We will also want to pass it the action—whether it's creation or deletion—so that the appropriate bindings can be update on success.
-  },
-  success: function(elem) {
-    console.log(elem);
-    elem.removeClass("working");
-  },
-  create: function(elem, source, dest) {
-    this.working(elem);
+  create: function(elem, active_highlight_id, current_dom_id) {
+    setState.working(elem);
     $.ajax({
       url: "http://api.twin.gl/flux/twinglings",
       type: "POST",
       data: {
         start_type: "highlights",
-        start_id: source,
+        start_id: active_highlight_id,
         end_type: "highlights",
-        end_id: dest
+        end_id: current_dom_id
       },
       success: function(data) {
-        console.log(data);
-        modifyTwingling.success(elem);
+        console.log("Great success! Twingling is create.", data);
+        modifyTwingling.greatSuccess(elem, active_highlight_id, current_dom_id, "create", data.id);
       }
     })
   },
-  destroy: function(elem, id) {
-    console.log("Now we will delete " + id);
-    this.working(elem);
+  destroy: function(elem, active_highlight_id, current_dom_id, twingling_id) {
+    console.log("Now we will delete " + twingling_id);
+    setState.working(elem);
     $.ajax({
-      url: "http://api.twin.gl/flux/twinglings/" + id,
+      url: "http://api.twin.gl/flux/twinglings/" + twingling_id,
       type: "DELETE",
       success: function(data) {
         console.log("Great success! Twingling is very delete.");
-        modifyTwingling.success(elem);
+        modifyTwingling.greatSuccess(elem, active_highlight_id, current_dom_id, "destroy");
       }
     })
+  },
+  greatSuccess: function(elem, active_highlight_id, current_dom_id, type, twingling_id) {
+    elem.removeClass("working");
+    if(type === "destroy") {
+      setState.twinglable(elem, active_highlight_id, current_dom_id)
+    }
+    else if (type === "create") {
+      setState.twingled(elem, active_highlight_id, current_dom_id, twingling_id)
+    }
   }
 }
-
-
 
 var updateHighlightList = {
   add: function(annotation) {
