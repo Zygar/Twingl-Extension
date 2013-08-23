@@ -61,12 +61,13 @@ function initSynapser(active_highlight_id) {
 
   /* Retrieve Twinglings.
      This is somewhat blocking.  */
+  $synapser.addClass("working");
   $.ajax({
     url: "http://api.twin.gl/flux/highlights/" + active_highlight_id + "/twinglings",
     type: "GET",
     success: function(data) {
       /* We retrieve all Twinglings attached to the highlight from which
-         the Twingler was initialised.
+         the Twingler was initialised. (active_highlight_id)
 
          Then, we stuff start_id/end_id into a one-dimensional array: dropping
          any ID which matches the current ID.
@@ -90,7 +91,7 @@ function initSynapser(active_highlight_id) {
         currentTwinglings.push(currentTwingling);
       };
       checkHighlights(currentTwinglings);
-     
+      $synapser.removeClass("working");
     }
   });
 
@@ -164,7 +165,6 @@ var modifyTwingling = {
     })
   },
   destroy: function(elem, active_highlight_id, current_dom_id, twingling_id) {
-    console.log("Now we will delete " + twingling_id);
     setState.working(elem);
     $.ajax({
       url: "http://api.twin.gl/flux/twinglings/" + twingling_id,

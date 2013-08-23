@@ -14,6 +14,10 @@
 #synapser.visible {
   display: block;
 }
+#synapser.working {
+  background-color: #000;
+}
+
 .synapse-selected {
   background-color: black;
 }
