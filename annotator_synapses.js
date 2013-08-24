@@ -34,7 +34,7 @@ Annotator.Plugin.Synapses = (function() {
 
       function openSynapser(event) {
         //console.log(event.data);
-        initSynapser(event.data.id, event.data);
+        initSynapser(event.data);
       }
 
       if (synapseInjected != true) {
