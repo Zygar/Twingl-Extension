@@ -8,6 +8,7 @@ Annotator.Plugin.Synapses = (function() {
 
   Synapses.prototype.pluginInit = function() {
     modifyTwingling.annotator = this.annotator;
+    annotatorMethods.annotatorObject = this.annotator;
     // We pass modifyTwingling the annotator object so that it can publish events.
 
     this.annotator.viewer.addField({

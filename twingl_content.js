@@ -2,65 +2,86 @@
  * Everything that touches the page happens here.
  * We grab a copy of the token and when that’s ready, we initialise Annotator.
  */
+var annotatorMethods = {
+  annotatorObject: null,
+  init: function(token) {
+    // Set up authentication headers.
+    $.ajaxSetup({
+      headers: {
+        'Authorization': 'Bearer ' + token
+      }
+    });
 
- var initAnnotator = function(token) {
-   // Set up authentication headers.
-   $.ajaxSetup({
-     headers: {
-       'Authorization': 'Bearer ' + token
-     }
-   });
+    // Get all highlights. (For the Twingler)
+    $.ajax({
+      url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
+      type: "GET",
+      success: function(data) {
+        renderHighlightsList(data);
+      }
+    });
 
-   // Get all highlights. (For the Twingler)
-   $.ajax({
-     url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
-     type: "GET",
-     success: function(data) {
-       renderHighlightsList(data);
-     }
-   });
+    var theAnnotator = $(document.body).annotator();
+    theAnnotator.annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
+      token: token
+    });
+    theAnnotator.annotator('addPlugin', 'Store', {
+      prefix: 'http://api.twin.gl/flux/',
+      urls: {
+        create: 'highlights?context=' + window.location,
+        read: 'highlights/?context=' + window.location + '&expand=twinglings',
+        update: 'highlights/:id',
+        destroy: 'highlights/:id'
+      }
+    }).append("<div id='synapser'><ul></ul></div>"); // Construct the Synapser UI Element
+    // Continue constructing and binding Synapser UI element.
+    $('#synapser').append("<button id='synapser-close'>Close</button>");
+    $('#synapser-close').click(function() {
+      $("#synapser").toggleClass("visible");
+    });
 
-   var theAnnotator = $(document.body).annotator();
-   theAnnotator.annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
-     token: token
-   });
-   theAnnotator.annotator('addPlugin', 'Store', {
-     prefix: 'http://api.twin.gl/flux/',
-     urls: {
-       create: 'highlights?context=' + window.location,
-       read: 'highlights/?context=' + window.location + '&expand=twinglings',
-       update: 'highlights/:id',
-       destroy: 'highlights/:id'
-     }
-   }).append("<div id='synapser'><ul></ul></div>"); // Construct the Synapser UI Element
-   // Continue constructing and binding Synapser UI element.
-   $('#synapser').append("<button id='synapser-close'>Close</button>");
-   $('#synapser-close').click(function() {
-     $("#synapser").toggleClass("visible");
-   });
+    // Inject highlights into the Synapser
 
-   // Inject highlights into the Synapser
+    function renderHighlightsList(data) {
+      for (var i = data.length - 1; i >= 0; i--) {
+        current = data[i];
+        $("#synapser ul").append("<li class='retrieved-highlight' data-id=" + current.id + ">" + current.quote + "</li>")
+      };
+    }
+  },
+  unload: function() {
+    console.log(this.annotatorObject);
+    this.annotatorObject.destroy();  
+  }
+}
 
-   function renderHighlightsList(data) {
-     for (var i = data.length - 1; i >= 0; i--) {
-       current = data[i];
-       $("#synapser ul").append("<li class='retrieved-highlight' data-id=" + current.id + ">" + current.quote + "</li>")
-     };
-   }  
- }
 
 chrome.storage.sync.get("paused", function(data){
   if (data.paused == true) {
     return false
   }
   else {
-    chrome.runtime.sendMessage({
-      request: "auth_token"
-    }, function(response) {
-      initAnnotator(response.token);
-    });    
+    authPlugin();
   }
 })
+
+function authPlugin() {
+  chrome.runtime.sendMessage({
+    request: "auth_token"
+  }, function(response) {
+    annotatorMethods.init(response.token);
+  });
+}
+
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  console.log(changes);
+  if (changes.paused.newValue == false) {
+    authPlugin();
+  } else {
+    annotatorMethods.unload();
+    console.log("unloading dat")
+  }
+});
 
 /* Initialise the Synapser. It is passed the ID of the Highlight from which "Synapser" was invoked.*/
 
