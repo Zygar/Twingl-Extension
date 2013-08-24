@@ -4,6 +4,24 @@ var twingl = new OAuth2('twingl', {
   api_scope: 'private'
 });
 
+chrome.storage.sync.get("paused", function(data){
+  if (data.paused == true) {
+    chrome.browserAction.setIcon({path: 'icon-sleeping.png'});
+    return false;
+  }
+  else {return false;}
+})
+
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  console.log(changes);
+  if (changes.paused.newValue == false) {
+    chrome.browserAction.setIcon({path: 'icon.png'});
+  } else {
+    chrome.browserAction.setIcon({path: 'icon-sleeping.png'});
+  }
+});
+
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log("This will only fire when extension is initialised.");
   twingl.authorize(function() {
