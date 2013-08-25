@@ -4,6 +4,17 @@ var twingl = new OAuth2('twingl', {
   api_scope: 'private'
 });
 
+var checkBlacklist = function(list, url) {
+  for (var i = list.length - 1; i >= 0; i--) {
+    if(list[i] == url) {
+      console.log("This site is in the blacklist. Not loading.")
+      return {blacklisted: true, index: i}
+    }
+  };
+  // If it makes it through the loop, the item is obv. not there. So return false.
+  return false;
+}
+
 chrome.storage.sync.get("paused", function(data){
   if (data.paused == true) {
     chrome.browserAction.setIcon({path: 'icon-sleeping.png'});
