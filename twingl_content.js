@@ -55,9 +55,11 @@ var annotatorMethods = {
   }
 }
 
+var currentURI = window.location;
+
 function checkBlacklist(list) {
   for (var i = list.length - 1; i >= 0; i--) {
-    if(list[i] == window.location) {
+    if(list[i] == currentURI) {
       console.log("This site is in the blacklist. Not loading.")
       return true;
     }
@@ -94,10 +96,12 @@ function authPlugin() {
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
   console.log(changes);
-  if (changes.paused.newValue == false) {
-    authPlugin();
-  } else {
-    annotatorMethods.unload();
+  if (changes.paused != undefined) {
+    if (changes.paused.newValue == false) {
+      authPlugin();
+    } else {
+      annotatorMethods.unload();
+    }
   }
 });
 

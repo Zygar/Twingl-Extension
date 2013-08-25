@@ -15,13 +15,19 @@ var blackList = {
   loadIt: function() {
     chrome.storage.sync.get("blacklist", function(data){
       blackList.list = data;
-      console.log("Loaded", blackList.list);
     });
   },
   addTo: function(){
-    console.log("Before", blackList.list);
     blackList.list.blacklist.push(currentURI);
-    console.log("After", blackList.list);
+    chrome.storage.sync.set(blackList.list), function() {
+      message("Site is on the shit list.") 
+    };
+  },
+  removeFrom: function() {
+
+  },
+  empty: function() {
+    blackList.list.blacklist = [];
     chrome.storage.sync.set(blackList.list), function() {
       message("Site is on the shit list.") 
     };
@@ -61,6 +67,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   $("#blacklist").click(function(){
     blackList.addTo();
+  });
+
+  $("#reset").click(function(){
+    blackList.empty();
   });
 
   if(twingl.getAccessToken()) { 
