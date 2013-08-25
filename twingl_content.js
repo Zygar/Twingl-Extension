@@ -2,6 +2,60 @@
  * Everything that touches the page happens here.
  * We grab a copy of the token and when that’s ready, we initialise Annotator.
  */
+var currentURI = window.location.href;
+
+// Check if plugin is paused. If so, terminate.
+chrome.storage.sync.get("paused", function(data) {
+  if (data.paused == true) {
+    return false
+  }
+  else {
+    chrome.storage.sync.get("blacklist", function(data) {
+      // If not, load the blacklist and run it against the current URL.
+      console.log(data.blacklist);
+      blackListChecker(data.blacklist, currentURI)
+    });
+  }
+})
+
+function blackListChecker(list, url) {
+  // Blacklist checker is stored in the background page because DRY. 
+  chrome.runtime.sendMessage({
+    blacklist: "blacklist",
+    list: list,
+    url: url
+  }, function(response) {
+    console.log(response);
+    if (response.exists === false) {
+      // If the blacklist checker comes back negative, let's rock.
+      authPlugin()
+    }
+    else {
+      // If it comes back undefined or as an object, it'll stop.
+      return false
+    }
+  });
+}
+
+function authPlugin() {
+  chrome.runtime.sendMessage({
+    request: "auth_token"
+  }, function(response) {
+    annotatorMethods.init(response.token);
+  });
+}
+
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  console.log(changes);
+  if (changes.paused != undefined) {
+    if (changes.paused.newValue == false) {
+      authPlugin();
+    } else {
+      annotatorMethods.unload();
+    }
+  }
+});
+
 var annotatorMethods = {
   annotatorObject: null,
   init: function(token) {
@@ -54,56 +108,6 @@ var annotatorMethods = {
     this.annotatorObject.destroy();  
   }
 }
-
-var currentURI = window.location;
-
-function checkBlacklist(list) {
-  for (var i = list.length - 1; i >= 0; i--) {
-    if(list[i] == currentURI) {
-      console.log("This site is in the blacklist. Not loading.")
-      return true;
-    }
-  };
-  // If it makes it through the loop, the item is obv. not there. So return false.
-  return false;
-}
-
-chrome.storage.sync.get("paused", function(data) {
-  if (data.paused == true) {
-    return false
-  }
-  else {
-    chrome.storage.sync.get("blacklist", function(data) {
-      console.log(data.blacklist);
-      var isBlacklisted = checkBlacklist(data.blacklist)
-      if (isBlacklisted === true) {
-        return false;
-      }
-      else {
-        authPlugin();
-      }
-    });
-  }
-})
-
-function authPlugin() {
-  chrome.runtime.sendMessage({
-    request: "auth_token"
-  }, function(response) {
-    annotatorMethods.init(response.token);
-  });
-}
-
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-  console.log(changes);
-  if (changes.paused != undefined) {
-    if (changes.paused.newValue == false) {
-      authPlugin();
-    } else {
-      annotatorMethods.unload();
-    }
-  }
-});
 
 /* Initialise the Synapser. It is passed the ID of the Highlight from which "Synapser" was invoked.*/
 

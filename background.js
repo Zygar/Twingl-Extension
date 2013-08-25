@@ -82,3 +82,13 @@ chrome.runtime.onMessage.addListener(
       });
     }
   });
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.blacklist == "blacklist") {
+      console.log(request);
+      sendResponse({
+        exists: checkBlacklist(request.list, request.url)
+      });
+    }
+  });
