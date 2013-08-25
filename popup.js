@@ -1,37 +1,67 @@
 var twingl = chrome.extension.getBackgroundPage().twingl;
-var pauseVariable = localStorage.paused;
-var updateBlacklist = function(obj) {
+var pauseExtension = function(obj) {
   chrome.storage.sync.set(obj), function() {
     message("Status is changed.")
   }
 }
 
 var blacklist = {
+  "http://google.com/": true
+}
+
+var currentURI = "http://www.kk.org/outofcontrol/"
+
+chrome.tabs.getSelected(null, function(tab) {
+    currentURI = tab.url;
+});
+
+
+
+var blacklistSite = function() {
+  blacklist[currentURI] = true;
+  console.log(currentURI);
+  console.log(blacklist);
+  // chrome.storage.sync.set(blacklist), function() {
+  //   message("Site is on the shit list.") 
+  // }
+}
+
+var pauseStatus = {
   paused: false
 }
 
 chrome.storage.sync.get("paused", function(data){
-  blacklist.paused = data.paused;
-  if (blacklist.paused == true) {
+  pauseStatus.paused = data.paused;
+  if (pauseStatus.paused == true) {
     $("#pause").text("Unpause Extension");
   }
 })
 
-var pauseExtension = function() {
-  if(blacklist.paused == true) {
-    blacklist.paused = false;
-    updateBlacklist(blacklist);
+chrome.storage.sync.get("blacklist", function(data){
+  blacklist = data;
+  console.log(blacklist)
+})
+
+
+var pauseIt = function() {
+  if(pauseStatus.paused == true) {
+    pauseStatus.paused = false;
+    pauseExtension(pauseStatus);
     $("#pause").text("Pause Extension");
   } else {
-    blacklist.paused = true;
-    updateBlacklist(blacklist);
+    pauseStatus.paused = true;
+    pauseExtension(pauseStatus);
     $("#pause").text("Unpause Extension");
   }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   $("#pause").click(function(){
-    pauseExtension();
+    pauseIt();
+  });
+
+  $("#blacklist").click(function(){
+    blacklistSite();
   });
 
   if(twingl.getAccessToken()) { 

@@ -79,7 +79,6 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     authPlugin();
   } else {
     annotatorMethods.unload();
-    console.log("unloading dat")
   }
 });
 
