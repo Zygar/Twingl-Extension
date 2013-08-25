@@ -55,13 +55,32 @@ var annotatorMethods = {
   }
 }
 
+function checkBlacklist(list) {
+  for (var i = list.length - 1; i >= 0; i--) {
+    if(list[i] == window.location) {
+      console.log("This site is in the blacklist. Not loading.")
+      return true;
+    }
+  };
+  // If it makes it through the loop, the item is obv. not there. So return false.
+  return false;
+}
 
-chrome.storage.sync.get("paused", function(data){
+chrome.storage.sync.get("paused", function(data) {
   if (data.paused == true) {
     return false
   }
   else {
-    authPlugin();
+    chrome.storage.sync.get("blacklist", function(data) {
+      console.log(data.blacklist);
+      var isBlacklisted = checkBlacklist(data.blacklist)
+      if (isBlacklisted === true) {
+        return false;
+      }
+      else {
+        authPlugin();
+      }
+    });
   }
 })
 

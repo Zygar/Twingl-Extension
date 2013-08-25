@@ -5,26 +5,28 @@ var pauseExtension = function(obj) {
   }
 }
 
-var blacklist = {
-  "http://google.com/": true
-}
-
 var currentURI = "http://www.kk.org/outofcontrol/"
 
 chrome.tabs.getSelected(null, function(tab) {
     currentURI = tab.url;
 });
 
-
-
-var blacklistSite = function() {
-  blacklist[currentURI] = true;
-  console.log(currentURI);
-  console.log(blacklist);
-  // chrome.storage.sync.set(blacklist), function() {
-  //   message("Site is on the shit list.") 
-  // }
-}
+var blackList = {
+  loadIt: function() {
+    chrome.storage.sync.get("blacklist", function(data){
+      blackList.list = data;
+      console.log("Loaded", blackList.list);
+    });
+  },
+  addTo: function(){
+    console.log("Before", blackList.list);
+    blackList.list.blacklist.push(currentURI);
+    console.log("After", blackList.list);
+    chrome.storage.sync.set(blackList.list), function() {
+      message("Site is on the shit list.") 
+    };
+  }
+} 
 
 var pauseStatus = {
   paused: false
@@ -35,11 +37,6 @@ chrome.storage.sync.get("paused", function(data){
   if (pauseStatus.paused == true) {
     $("#pause").text("Unpause Extension");
   }
-})
-
-chrome.storage.sync.get("blacklist", function(data){
-  blacklist = data;
-  console.log(blacklist)
 })
 
 
@@ -56,12 +53,14 @@ var pauseIt = function() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  blackList.loadIt();
+
   $("#pause").click(function(){
     pauseIt();
   });
 
   $("#blacklist").click(function(){
-    blacklistSite();
+    blackList.addTo();
   });
 
   if(twingl.getAccessToken()) { 
