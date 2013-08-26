@@ -19,7 +19,8 @@ Annotator.Plugin.Synapses = (function() {
             var twingling = annotation.twinglings[i].end_object;  
           } else {
             var twingling = annotation.twinglings[i].start_object;
-          }
+          };
+          twingling.quote = twingling.quote.substr(0, 125) + "&#8230";
           $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.quote + "</a>");
         };
       }
