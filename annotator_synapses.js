@@ -3,7 +3,7 @@ Annotator.Plugin.Synapses = (function() {
     var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
     return domain;
   };
-  
+
   var synapseInjected = false;
 
   function Synapses(element, options) {
@@ -15,7 +15,7 @@ Annotator.Plugin.Synapses = (function() {
     modifyTwingling.annotator = this.annotator;
     annotatorMethods.annotatorObject = this.annotator;
     // We pass modifyTwingling the annotator object so that it can publish events.
-
+    $(".annotator-controls").prepend("<a id='synapse' href='#twingling'>Twinglings</a>")
     this.annotator.viewer.addField({
       load: function(field, annotation) {
         // console.log(annotation.twinglings)
@@ -31,30 +31,21 @@ Annotator.Plugin.Synapses = (function() {
         };
       }
     })
-    this.annotator.editor.addField({
-      label: 'Synapses',
-      load: function(field, annotation) {
-        //console.log(field, annotation);
-      }
-    });
+    
 
     this.annotator.subscribe("annotationEditorShown", function(editor, annotation) {
-      //console.log(annotation);
+      
+      
       var currentAnnotation = annotation;
-
+      $("#synapse").off("click");
+      $("#synapse").on("click", currentAnnotation, openSynapser)
+      
       function openSynapser(event) {
-        //console.log(event.data);
+      
         initSynapser(event.data);
       }
 
-      if (synapseInjected != true) {
-        $("#annotator-field-1").after("<button id='synapse'>Synapse</button>")
-        synapseInjected = true;
-        $("#synapse").on("click", currentAnnotation, openSynapser);
-      } else {
-        $("#synapse").off("click");
-        $("#synapse").on("click", currentAnnotation, openSynapser);
-      }
+      
     })
 
     this.annotator.subscribe("annotationDeleted", function(annotation) {
