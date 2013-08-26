@@ -1,16 +1,21 @@
 var twingl = chrome.extension.getBackgroundPage().twingl;
 var checkBlacklist = chrome.extension.getBackgroundPage().checkBlacklist;
+var getHostname = function (url) {
+  var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
+  return domain;
+};
+
 var pauseExtension = function(obj) {
   chrome.storage.sync.set(obj), function() {
     message("Status is changed.")
   }
 }
 
-var currentURI = "http://www.kk.org/outofcontrol/"
+var currentURI = ""
 var inBlacklist = false; 
 
 chrome.tabs.getSelected(null, function(tab) {
-    currentURI = tab.url;
+    currentURI = getHostname(tab.url);
 });
 
 var blackList = {

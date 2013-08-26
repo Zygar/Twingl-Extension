@@ -2,7 +2,14 @@
  * Everything that touches the page happens here.
  * We grab a copy of the token and when that’s ready, we initialise Annotator.
  */
-var currentURI = window.location.href;
+var getHostname = function (url) {
+  var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
+  return domain;
+};
+
+var currentURI = getHostname(window.location.href); 
+// Using my ghetto function instead of window.location.hostname for consistency's sake. We don't want them
+// to ever return different results. 
 
 // Check if plugin is paused. If so, terminate.
 chrome.storage.sync.get("paused", function(data) {
@@ -12,7 +19,6 @@ chrome.storage.sync.get("paused", function(data) {
   else {
     chrome.storage.sync.get("blacklist", function(data) {
       // If not, load the blacklist and run it against the current URL.
-      console.log(data.blacklist);
       blackListChecker(data.blacklist, currentURI)
     });
   }

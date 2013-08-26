@@ -1,9 +1,9 @@
 Annotator.Plugin.Synapses = (function() {
-  function getHostname(url) {
-    var urlParts = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
-    var domain = urlParts[0];
+  var getHostname = function (url) {
+    var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
     return domain;
   };
+  
   var synapseInjected = false;
 
   function Synapses(element, options) {
