@@ -1,4 +1,9 @@
 Annotator.Plugin.Synapses = (function() {
+  function getHostname(url) {
+    var urlParts = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
+    var domain = urlParts[0];
+    return domain;
+  };
   var synapseInjected = false;
 
   function Synapses(element, options) {
@@ -21,7 +26,8 @@ Annotator.Plugin.Synapses = (function() {
             var twingling = annotation.twinglings[i].start_object;
           };
           twingling.quote = twingling.quote.substr(0, 125) + "&#8230";
-          $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.quote + "</a>");
+          twingling.shortURL = getHostname(twingling.context_url);
+          $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.quote + "<br><small>"+ twingling.shortURL +"</small> </a>");
         };
       }
     })
