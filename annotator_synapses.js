@@ -33,10 +33,12 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
       })
       .subscribe("twinglingCreated", function(twingling, annotation) {
         annotation.twinglings.push(twingling);
-        // TODO: If a twingling was made to another item on the same page, we will need to update that
-        // annotation as well. This turns it into a very hard problem and I'm inclined to say "fuck it"
-        // for now. What we *need* is a persistent local model that can be kept in the background 
-        // page at all times. This would also allow for live updating across pages. 
+        if (twingling.end_object.context_url === annotation.context_url) {
+          console.log("YO! You be making a same page Twingling!")
+          /* We then need to find its local annotation object—the one which Annotator is holding
+          in memory—and push a Twingling to that array. We need to do the same on delete. 
+          This is a time consuming and medium priority task. */
+        }
       })
       .subscribe("twinglingDestroyed", function(twingling, annotation) {
         for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
