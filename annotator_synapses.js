@@ -71,8 +71,12 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     this.annotator.editor.submit();
     if(this.currentAnnotation.id == undefined) {
       console.log("No id yet.")
-      // If an ID does not exist, it needs to hold off until it gets a response before initialising it properly. 
-      // Not sure yet how we listen for this. 
+     /* If an ID has not yet been received...
+        We want to init the Synapser, but have it stay in the "working"
+        state until annotationCreatedSuccess has been heard. 
+        Then it can proceed as normal.
+      */ 
+
     } else {
       initSynapser(this.currentAnnotation);
     }
