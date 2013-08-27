@@ -82,7 +82,7 @@ var annotatorMethods = {
     });
 
     var theAnnotator = $(document.body).annotator();
-    theAnnotator.annotator('addPlugin', 'Synapses').annotator('addPlugin', 'Auth', {
+    theAnnotator.annotator('addPlugin', 'Twinglings').annotator('addPlugin', 'Auth', {
       token: token
     });
     theAnnotator.annotator('addPlugin', 'Store', {
@@ -118,9 +118,9 @@ var annotatorMethods = {
 /* Initialise the Synapser. It is passed the ID of the Highlight from which "Synapser" was invoked.*/
 
 function initSynapser(annotation) {
-  //console.log("Woo! We've initialised the synapser with ID " + active_highlight_id);
   var active_highlight_id = annotation.id;
   var currentTwinglings = [];
+  console.log("Woo! We've initialised the synapser with ID " + active_highlight_id);
   $synapser = $("#synapser");
   $highlights = $("#synapser ul li");
   $synapser.addClass("visible");
