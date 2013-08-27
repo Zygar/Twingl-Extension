@@ -139,8 +139,10 @@ function initSynapser(annotation) {
 
   // It just occurred to me. Now that we have a local copy of the annotation inside of
   // the Synapser, we don't necessarily need to request the Twinglings again. We can just
-  // call annotator.twinglings.
-  // I might do this later.
+  // call annotator.twinglings. The only reason for having this would be to ensure that we always 
+  // get fresh data; however when a Twingling is created, we store it on the local annotation anyway.
+  // So it's mostly redundant: the only thing it doesn't account for is newly created inbound Twinglings.
+  // But they are an edge case, and that is a problem common to the entire app. 
   $.ajax({
     url: "http://api.twin.gl/flux/highlights/" + active_highlight_id + "/twinglings",
     type: "GET",
