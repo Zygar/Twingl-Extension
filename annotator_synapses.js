@@ -54,19 +54,21 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     this.annotator.viewer.addField({
       load: function(field, annotation) {
         // Check if a Twingling is Inbound or Outbound, then append it to the list. 
-        for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
-          var twingling_id = annotation.twinglings[i].id;
-          if (annotation.twinglings[i].start_id === annotation.id) {
-            var twingling = annotation.twinglings[i].end_object;
-          } else {
-            var twingling = annotation.twinglings[i].start_object;
+        if (annotation.twinglings.length > 0) {
+          for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
+            var twingling_id = annotation.twinglings[i].id;
+            if (annotation.twinglings[i].start_id === annotation.id) {
+              var twingling = annotation.twinglings[i].end_object;
+            } else {
+              var twingling = annotation.twinglings[i].start_object;
+            };
+            twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
+            twingling.shortURL = getHostname(twingling.context_url);
+            $(field).append("<div data-id="+ twingling_id +"><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
           };
-          twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
-          twingling.shortURL = getHostname(twingling.context_url);
-          $(field).append("<div data-id="+ twingling_id +"><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
-        };
+          $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
+        }
         $(field).append("<button id='twingling-add'>Add Twingling</button>");
-        $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
         $('#twingling-add').off('click').on('click', annotation, function(event){
           twingler.begin(event.data);
         });
