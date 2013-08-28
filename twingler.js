@@ -41,7 +41,7 @@ var twingler = {
     });
   },
   parseResults: function(results) {
-    // This is where we compare current annotation, current Twinglings. 
+    // Exclude current twinglings, current annotation from results.
     var currentAnnotation = this.currentAnnotation;
     var currentTwinglings = this.currentTwinglings;
     var newResults = [];
@@ -59,9 +59,7 @@ var twingler = {
             isTwinglable = false;
           }
         }
-      } else {
-        console.log("There are no Twinglings to check against.")
-      }
+      };
       
       if (isTwinglable == true) {
         newResults.push(results[i]);
