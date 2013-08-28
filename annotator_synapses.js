@@ -11,7 +11,6 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     var that = this; 
     console.log("Plugin successfully initialised.", this);
     twingler.init(this.annotator);
-    modifyTwingling.annotator = this.annotator;
     annotatorMethods.annotatorObject = this.annotator;
     
     $(".annotator-controls").prepend("<a id='twinglings' href='#twingling'>Twinglings</a>");
@@ -22,14 +21,14 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
         that.currentAnnotation = annotation;
       })
       .subscribe("annotationDeleted", function(annotation) {
-        updateHighlightList.remove(annotation);
+        
       })
       .subscribe("annotationCreated", function(annotation) {
         annotation.twinglings = []; // Prevent twinglings.length error on fresh Annotations.
       })
       .subscribe("annotationCreatedSuccess", function(annotation) {
         console.log("Great success! Annotation created with ID" + annotation.id)
-        updateHighlightList.add(annotation);
+        
       })
       .subscribe("twinglingCreated", function(twingling, annotation) {
         annotation.twinglings.push(twingling);
