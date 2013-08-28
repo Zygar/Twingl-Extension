@@ -65,7 +65,11 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
           twingling.shortURL = getHostname(twingling.context_url);
           $(field).append("<div data-id="+ twingling_id +"><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
         };
+        $(field).append("<button id='twingling-add'>Add Twingling</button>");
         $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
+        $('#twingling-add').off('click').on('click', annotation, function(event){
+          twingler.begin(event.data);
+        });
       }
     });
   },
@@ -84,5 +88,5 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     } else {
       twingler.begin(this.currentAnnotation);
     }
-  }
+  }  
 });
