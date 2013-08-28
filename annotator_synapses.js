@@ -60,9 +60,9 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
           } else {
             var twingling = annotation.twinglings[i].start_object;
           };
-          twingling.quote = twingling.quote.substr(0, 125) + "&#8230";
+          twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
           twingling.shortURL = getHostname(twingling.context_url);
-          $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.quote + "<br><small>"+ twingling.shortURL +"</small> </a>");
+          $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a>");
         };
       }
     });
