@@ -10,7 +10,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
   pluginInit: function() {
     var that = this; 
     console.log("Plugin successfully initialised.", this);
-    
+    twingler.init(this.annotator);
     modifyTwingling.annotator = this.annotator;
     annotatorMethods.annotatorObject = this.annotator;
     
@@ -80,7 +80,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
       */ 
 
     } else {
-      initSynapser(this.currentAnnotation);
+      twingler.begin(this.currentAnnotation);
     }
   }
 });

@@ -73,13 +73,13 @@ var annotatorMethods = {
     });
 
     // Get all highlights. (For the Twingler)
-    $.ajax({
-      url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
-      type: "GET",
-      success: function(data) {
-        renderHighlightsList(data);
-      }
-    });
+    // $.ajax({
+    //   url: "http://api.twin.gl/flux/highlights?context=twingl://mine",
+    //   type: "GET",
+    //   success: function(data) {
+    //     //renderHighlightsList(data);
+    //   }
+    // });
 
     var theAnnotator = $(document.body).annotator();
     theAnnotator.annotator('addPlugin', 'Twinglings').annotator('addPlugin', 'Auth', {
@@ -93,11 +93,6 @@ var annotatorMethods = {
         update: 'highlights/:id',
         destroy: 'highlights/:id'
       }
-    }).append("<div id='synapser'><ul></ul></div>"); // Construct the Synapser UI Element
-    // Continue constructing and binding Synapser UI element.
-    $('#synapser').append("<button id='synapser-close'>Close</button>");
-    $('#synapser-close').click(function() {
-      $("#synapser").toggleClass("visible");
     });
 
     // Inject highlights into the Synapser
