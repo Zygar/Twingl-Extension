@@ -5,7 +5,7 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.append("<div id='twingler'><button id='twingler-close'>Done</button><input type='search' id='twingler-search-field'><button id='twingler-search'>Search</button><ul class='search-results'></ul></div>");
+    this.annotator.wrapper.append("<div id='twingler'><button id='twingler-close'>Done</button><input type='search' id='twingler-search-field'><button id='twingler-search'>Search</button><ul class='twingl-search-results'></ul></div>");
     this.$twingler = $("#twingler");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
@@ -24,11 +24,10 @@ var twingler = {
     this.$twingler.show();
     this.currentAnnotation = annotation;
     this.currentTwinglings = annotation.twinglings;
-
-    console.log("Welcome to Twingler 2.0", annotation);
-
   },
   search: function(query) {
+    // TODO: Hook up "Working" state. 
+
     $.ajax({
       url: 'http://api.twin.gl/flux/highlights/search',
       type: 'GET',
@@ -37,6 +36,9 @@ var twingler = {
       },
       success: function(data) {
         twingler.parseResults(data);
+      },
+      error: function(data, status, error) {
+        console.log(data, status, error);
       }
     });
   },
@@ -50,8 +52,8 @@ var twingler = {
       var isTwinglable = true;
 
       if (results[i].result_id == currentAnnotation.id) {
-        // IS NOT TWINGLABLE 
-        isTwinglable = false; 
+        // IS NOT TWINGLABLE
+        isTwinglable = false;
       } else if (currentTwinglings.length > 0) {
         for (var j = currentTwinglings.length - 1; j >= 0; j--) {
           if (currentTwinglings[j].end_id == results[i].result_id || currentTwinglings[j].start_id == results[i].result_id) {
@@ -60,23 +62,105 @@ var twingler = {
           }
         }
       };
-      
+
       if (isTwinglable == true) {
         newResults.push(results[i]);
       }
     };
 
-    renderResults(newResults);
+    this.renderResults(newResults);
   },
   renderResults: function(results) {
-    console.log(results);
+    // TODO : Return "No Results" if empty.
+
+    $searchresults = $("#twingler .twingl-search-results");
+    $searchresults.empty();
+    
+    for (var i = results.length - 1; i >= 0; i--) {
+      result = results[i].result_object;
+      $searchresults.append("<li class='twingl-returned-result' data-id="+result.id+">" + result.quote + "</li>");
+    };
+    
+    $('.twingl-returned-result').off('click').on('click', this.currentAnnotation, twinglerCrud.create);
   },
   done: function() {
     this.$twingler.hide();
-    this.currentTwinglings = []; // Do we need to reset? 
+    this.currentTwinglings = []; 
+    // TODO: Unset all values, like search results. 
   },
   unload: function() {
     this.$twingler.remove();
     this.$twingler = {};
+  }
+}
+
+var twinglerCrud = {
+  create: function(event) { 
+    var $elem = $(this);
+    var annotation = event.data;
+    var dest_id = $(this).attr("data-id");
+    var src_id = annotation.id;
+    
+    twinglerCrud.working.start($elem);
+
+    $.ajax({
+      url: "http://api.twin.gl/flux/twinglings",
+      type: "POST",
+      data: {
+        start_type: "highlights",
+        start_id: src_id,
+        end_type: "highlights",
+        end_id: dest_id
+      },
+      success: function(data) {
+        console.log("Great success! Twingling is create.", data);
+        twinglerCrud.working.success($elem);
+        $.ajax({ 
+          // Get the freshly created Twingling and and attach it to the Annotation object.
+          url: "http://api.twin.gl/flux/twinglings/" + data.id + "?expand=end_object",
+          type: "GET",
+          success: function(data) {
+            twingler.annotator.publish("twinglingCreated", [data, annotation]);
+          }
+        });
+      },
+      error: function(data, status, error) {
+        console.log(data, status, error);
+        twinglerCrud.working.error($elem, error);
+      }
+    })
+  },
+  destroy: function(event) {
+    var $elem = $(this).parent();
+    var twingling_id = $elem.attr("data-id");
+    var annotation = event.data;
+
+    twinglerCrud.working.start($elem);
+
+    $.ajax({
+      url: "http://api.twin.gl/flux/twinglings/" + twingling_id,
+      type: "DELETE",
+      success: function(data) {
+        twingler.annotator.publish("twinglingDestroyed", [twingling_id, annotation]);
+        twinglerCrud.working.success($elem);
+      },
+      error: function(data, status, error) {
+        console.log(data, status, error);
+        twinglerCrud.working.error($elem, error);
+      }
+    });
+  },
+  working: {
+    start: function(elem) {
+      elem.off('click').addClass('working');
+    },
+    success: function(elem) {
+      elem.remove();
+    },
+    error: function(elem) {
+      // If there was an error, we need to bind an event to "Try Submitting Again". 
+      // We also need to set an error class.
+      // We also need the ability to "Report Bug"
+    }
   }
 }

@@ -40,9 +40,10 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
           This is a time consuming and medium priority task. */
         }
       })
-      .subscribe("twinglingDestroyed", function(twingling, annotation) {
+      .subscribe("twinglingDestroyed", function(twingling_id, annotation) {
+        console.log("Receiving a destroyed event.")
         for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
-          if (annotation.twinglings[i].id === twingling.id) {
+          if (annotation.twinglings[i].id == twingling_id) {
             annotation.twinglings.splice(i, 1);
             return
           }
@@ -55,15 +56,17 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
       load: function(field, annotation) {
         // Check if a Twingling is Inbound or Outbound, then append it to the list. 
         for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
+          var twingling_id = annotation.twinglings[i].id;
           if (annotation.twinglings[i].start_id === annotation.id) {
-            var twingling = annotation.twinglings[i].end_object;  
+            var twingling = annotation.twinglings[i].end_object;
           } else {
             var twingling = annotation.twinglings[i].start_object;
           };
           twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
           twingling.shortURL = getHostname(twingling.context_url);
-          $(field).append("<a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a>");
+          $(field).append("<div data-id="+ twingling_id +"><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
         };
+        $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
       }
     });
   },
