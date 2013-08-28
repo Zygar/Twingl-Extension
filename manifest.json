@@ -3,7 +3,7 @@
 
   "name": "Twingl",
   "description": "Development instance of the Twingl extension.",
-  "version": "0.2",
+  "version": "0.3",
 
   "permissions": [
     "<all_urls>", 
