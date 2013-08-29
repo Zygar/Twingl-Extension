@@ -1,8 +1,63 @@
 /* On Install */
-chrome.runtime.onInstalled.addListener(function(){
-  console.log("Anything that should run when the extension is first installed, such as initialising the blacklist/settings object, should go here.");
-})
+// Technically, this gets set on event page load
+var seedStorage = { 
+  paused: false,
+  blacklist: {
+    "google.com": true
+  }
+}; 
 
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.storage.sync.clear(function(){
+    console.log("The extension has been updated. Dumping storage.");
+  });
+  chrome.storage.sync.set(seedStorage, function(){
+    console.log("New storage value has been set.");
+  })
+});
+
+
+/* On Event Page Load */
+// Initialise Variables
+window.token = null;
+var twingl = new OAuth2('twingl', {
+  client_id: '94da4493b8c761a20c1a3b4d532d9ab301745c137b88a574298dc1ebe99d5b14',
+  client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
+  api_scope: 'private'
+});
+
+// Construct an empty sessionCache construct
+var sessionCache = { 
+  global_status: null,
+  1066: {
+    state: "blacklisted" // blacklisted | initialised | loading? | do we have global states like paused, signed out? 
+  }
+};
+
+
+// Define Functions
+function getGlobalState() {
+  chrome.storage.sync.get('paused', function(data) {
+    if (data.paused === true) {
+      sessionCache.global_status = "paused";
+    }
+    else {
+      checkAuth();
+    }
+  })
+};
+
+function checkAuth() {
+  if (twingl.getAccessToken()) {
+    window.token = twingl.getAccessToken();
+    sessionCache.global_status = "active";
+  } else {
+    sessionCache.global_status = "signed_out";
+  }
+};
+
+// Retrieve global state 
+getGlobalState();
 
 /*
   On Event Page load: 
@@ -78,33 +133,14 @@ chrome.runtime.onInstalled.addListener(function(){
 
 */
 
-var sessionCache = {
-  global_status: "active", // paused | signed_out | active. 
-  1066: {
-    state: "blacklisted" // blacklisted | initialised | loading? | do we have global states like paused, signed out? 
-  }
-}
+
 
 
 
 
 /* Authentication Check */
 /* This will fire whenever the event page is called. */
-window.token = null;
 
-var twingl = new OAuth2('twingl', {
-  client_id: '94da4493b8c761a20c1a3b4d532d9ab301745c137b88a574298dc1ebe99d5b14',
-  client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
-  api_scope: 'private'
-});
-
-if (twingl.getAccessToken()) {
-  window.token = twingl.getAccessToken();
-  // setstate authed to true
-} else {
-  console.log("We appear to be signed out. Set state to not-authed.");
-  // setstate authed to false
-}
 
 
 
