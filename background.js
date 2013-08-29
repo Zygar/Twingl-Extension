@@ -1,3 +1,4 @@
+window.token = "test";
 chrome.runtime.onInstalled.addListener(function(){
   console.log("Anything that should run when the extension is first installed, such as initialising the blacklist/settings object, should go here.");
 })
@@ -23,13 +24,12 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab){
 });
 
 function injectTwingl(tab_id) {
-  chrome.tabs.executeScript(tab_id, {
-    file: 'twingl_content.js'
-  }, function() {
-    console.log("This is so fucking stupid.");
-  }) 
-}
-
+  chrome.tabs.executeScript(tab_id, {code: "var token = 'hello';"}, function(){
+    chrome.tabs.executeScript(tab_id, {file: 'twingl_content.js'}, function(){
+      console.log("Initialised content script.")
+    })   
+  })
+};
 
 function getPageURL() {
 
