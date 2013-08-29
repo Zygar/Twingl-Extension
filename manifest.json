@@ -11,13 +11,15 @@
     "tabs"
   ],
   "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
+    "default_icon": {
+      "19": "icons/inactive.png",
+      "38": "icons/inactive@2x.png"
+      },
+    "default_popup": "popup-signedout.html"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "exclude_matches": ["*://medium.com/*", "*://kippt.com/*", "*://login.persona.org/*"], // TODO: We need a way to exclude URL patterns. // NB: This could also report problem sites.
       "css": ["vendor/annotator/css/annotator.css", "twingler.css"],
       "js": [
         "vendor/jquery-2.0.3.min.js",
@@ -25,7 +27,6 @@
         "vendor/annotator/plugins/oauth.js", 
         "vendor/annotator/plugins/store.js", 
         "annotator_synapses.js",
-        "twingl_content.js",
         "twingler.js"
         ]
     },
@@ -36,7 +37,8 @@
     }
   ],
   "background": {
-    "scripts": ["/oauth2/oauth2.js", "background.js"]
+    "scripts": ["/oauth2/oauth2.js", "background.js"],
+    "persistent": false
   },
   "web_accessible_resources": ["vendor/annotator/img/annotator-glyph-sprite.png", "vendor/annotator/img/annotator-icon-sprite.png"]
 }
