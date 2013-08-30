@@ -264,6 +264,7 @@ var pauseTwingl = {
       browserAction.setState("paused");
       sessionCache.global_status = "paused";
       chrome.storage.local.set({session: sessionCache});
+      miscActions.refresh();
     });
   },
   unpause: function() {
@@ -271,6 +272,7 @@ var pauseTwingl = {
       browserAction.setState("active");
       sessionCache.global_status = "active"; // Assume it's active and not signed out because YOLO
       chrome.storage.local.set({session: sessionCache});
+      miscActions.refresh();
     });
     chrome.tabs.query({active: true, currentWindow: true}, function(data){
       if (sessionCache.tabs[data[0].id] == undefined) {
