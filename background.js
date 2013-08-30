@@ -4,6 +4,10 @@ var seedStorage = {
   paused: false,
   blacklist: {
     "stackoverflow.com": true
+  },
+  session: {
+    global_status: null,
+    tabs: {}
   }
 };
 
@@ -29,20 +33,19 @@ var twingl = new OAuth2('twingl', {
 });
 
 // Construct an empty sessionCache object.
-var sessionCache = {
-  global_status: null,
-  tabs: {}
-};
+var sessionCache = {};
 
 
 /* Define functions to run on initialisation */
 function getGlobalState() {
-  chrome.storage.sync.get(null, function(data){console.log(data)})
-  chrome.storage.sync.get('paused', function(data) {
+  chrome.storage.sync.get(null, function(data) {
+    blackLister.blacklist = data.blacklist;
+    sessionCache = data.session;
+    console.log(data);
     if (data.paused === true) {
       sessionCache.global_status = "paused";
-    }
-    else {
+      chrome.storage.sync.set({session: sessionCache});
+    } else {
       authTwingl.check();
     }
   })
@@ -92,9 +95,10 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       };
       console.log("Loading tab", id);
       console.log(sessionCache.tabs[id]);
-      if (checkBlacklist(tab.url)) {
+      if (blackLister.check(tab.url)) {
         console.log("Shit is blacklisted!");
         sessionCache.tabs[id].state = "blacklisted";
+        chrome.storage.sync.set({session: sessionCache});
       };
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
@@ -114,6 +118,7 @@ function injectTwingl(tab) {
   chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'"}, function(){
     chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function() {
       sessionCache.tabs[tab.id].state = "initialised";
+      chrome.storage.sync.set({session: sessionCache});
       if (tab.active == true) {
         console.log("Script initialised in ACTIVE TAB! Set icon/popup NOW!")
         browserAction.setState("active");
@@ -162,83 +167,7 @@ chrome.tabs.onActivated.addListener(function(tab){
   
 })
 
-// BIG todos: 
-// persist blacklist in chrome storage
-// persist sessions in localstorage
-// event bindings 
 
-/*
-  On Event Page load:
-  (This stuff happens EVERY TIME event page initialises regardless of state.)
-    1. Retrieve pause status, assign to sessionCache object.
-    ----2. Check if there's an auth token:
-      1.1. If yes, but expired, request a new one, set state to authed.
-      ----1.2. If no, set state to signed out.
-    3. Retrieve session states from the localStorage cache.
-  
-  On event page unload
-  1. Push session states to localStorage cache. 
-
-  On tab switch:
-  (switch, new foreground tab. This check will fire BEFORE tab.update)
-    -- 0. Check global state. If paused or signed out, do no further checks. [Bind popup to respective action.]
-    -- 1. Check the tab id against session cache object. Does it exist?.
-      -- 1.1. If NO, it's a new foreground tab, or the extension was paused or signed out when this tab was created. (how to handle?)
-      -- 1.2. If YES, check state. Is it loading, initialised or blacklisted?
-    2. Set icons, change active popup based on the retrieved state.
-
-  On tab update:
-  (refresh, new tab(background or foreground), navigate to new page)
-
-    Upon 'loading' event:
-    1. Check global state.
-      ----1.1. If paused or signed out, execute no further. (N.B. NO icon/popup code here. That is a tab switch concern.)
-      ----1.2. Else, set up a listener for the "loaded" event.
-    ---2. Create or update sessioncache object.
-    3. Retrieve blacklist from chrome storage. ---Check HOSTNAME against blacklist.
-      ---3.1. If exists, set state to "blacklisted".
-
-
-    Upon 'loaded' event:
-      1. Check if tab is active, so we know whether to set icon.
-      ---- 2. Check sessioncache local status. [side note: what happens if the page loads before blacklist is checked?]
-        ---- 2.1. If blacklisted, do not inject script, and terminate here.
-          2.1.1. Set icon to blacklisted, if tab is active.
-        ---- 2.2. If not blacklisted, inject script with auth token passed.
-
-        Upon successful script injection:
-          ---- 1. Set sessionCache status to "initialised"
-          2. If tab is active, set icon/popups to green. Otherwise, will be set on tab switch event
-          3. Complete!
-
-  OTHER EVENTS:
-    On tab close
-      Destroy session variable
-
-    On browser close
-      Dump entire session cache.
-
-    Popup: Add to blacklist
-      Retrieves blacklist from chrome storage.
-      Gets the HOSTNAME of the current tab.
-      Appends it to list as new object.
-      Saves blacklist.
-      Refreshes page.
-
-    Popup: On pause/unpause
-      Set global pause status.
-      Write status to chrome.storage.
-
-    Popup: On sign out/in
-      Set global status to signed out/in
-      Sign out.
-
-
-    On event page unload:
-      Write current sessionCache object to localStorage.
-
-
-*/
 var authTwingl = {
   auth: function() {
     twingl.authorize(function() {
@@ -254,8 +183,10 @@ var authTwingl = {
     if (twingl.getAccessToken()) {
       window.token = twingl.getAccessToken();
       sessionCache.global_status = "active";
+      chrome.storage.sync.set({session: sessionCache});
     } else {
       sessionCache.global_status = "signed_out";
+      chrome.storage.sync.set({session: sessionCache});
     }
   }
 };
@@ -322,12 +253,14 @@ var pauseTwingl = {
     chrome.storage.sync.set({paused: true}, function(){
       browserAction.setState("paused");
       sessionCache.global_status = "paused";
+      chrome.storage.sync.set({session: sessionCache});
     });
   },
   unpause: function() {
     chrome.storage.sync.set({paused: false}, function(){
       browserAction.setState("active");
       sessionCache.global_status = "active"; // Assume it's active and not signed out because YOLO
+      chrome.storage.sync.set({session: sessionCache});
     });
     chrome.tabs.query({active: true, currentWindow: true}, function(data){
       if (sessionCache.tabs[data[0].id] == undefined) {
@@ -345,8 +278,35 @@ var pauseTwingl = {
 }
 
 var blackLister = {
-  add: function() {},
-  remove: function() {} 
+  blacklist: {},
+  save: function() {
+    chrome.storage.sync.set({blacklist: this.blacklist});
+  },
+  add: function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
+      var url = getHostname(data[0].url);
+      blackLister.blacklist[url] = true;
+      blackLister.save();
+      miscActions.refresh();
+    });
+  },
+  unblacklist: function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
+      var url = getHostname(data[0].url);
+      console.log(url);
+      delete blackLister.blacklist[url];
+      blackLister.save();
+      miscActions.refresh();
+    });
+  },
+  check: function(url) {
+    var hostname = getHostname(url);
+    if (blackLister.blacklist[hostname] == true) {
+      return true;
+    } else {
+      return false
+    }
+  }
 }
 
 var miscActions = {
@@ -356,3 +316,104 @@ var miscActions = {
     })
   }
 }
+
+
+
+
+/* NEXT STEPS */ 
+/* 
+  - Persist sessions in chrome local storage. 
+    - SAVE when event page unloads
+    - LOAD when event page loads
+    - PURGE when extension loads (ala fresh session)
+    - REMOVE TAB ENTRY when tab is closed.
+  
+  - Do a pass through the extension, just playing with it. Signing in, signing out, changing tabs, changing windows, letting it sit, etc. Make a note of any bugs or missing functionality. 
+  - Add ability to blacklist URL patterns.
+  - Clean up the code and you're done!
+*/
+
+// Bind up tabs.onremoved to remove stuff from the cache
+// On initialisation of the extension, dump the session cache. 
+
+
+/* On event page unload */
+
+
+// BIG todos: 
+// persist blacklist in chrome storage
+// persist sessions in localstorage
+// event bindings 
+
+/*
+  On Event Page load:
+  (This stuff happens EVERY TIME event page initialises regardless of state.)
+    1. Retrieve pause status, assign to sessionCache object.
+    ----2. Check if there's an auth token:
+      1.1. If yes, but expired, request a new one, set state to authed.
+      ----1.2. If no, set state to signed out.
+    3. Retrieve session states from the localStorage cache.
+  
+  On event page unload
+  1. Push session states to localStorage cache. 
+
+  On tab switch:
+  (switch, new foreground tab. This check will fire BEFORE tab.update)
+    -- 0. Check global state. If paused or signed out, do no further checks. [Bind popup to respective action.]
+    -- 1. Check the tab id against session cache object. Does it exist?.
+      -- 1.1. If NO, it's a new foreground tab, or the extension was paused or signed out when this tab was created. (how to handle?)
+      -- 1.2. If YES, check state. Is it loading, initialised or blacklisted?
+    --- 2. Set icons, change active popup based on the retrieved state.
+
+  On tab update:
+  (refresh, new tab(background or foreground), navigate to new page)
+
+    Upon 'loading' event:
+    1. Check global state.
+      ----1.1. If paused or signed out, execute no further. (N.B. NO icon/popup code here. That is a tab switch concern.)
+      ----1.2. Else, set up a listener for the "loaded" event.
+    -- --2. Create or update sessioncache object.
+    ---- 3. Retrieve blacklist from chrome storage. ---Check HOSTNAME against blacklist.
+      ---3.1. If exists, set state to "blacklisted".
+
+
+    Upon 'loaded' event:
+      1. Check if tab is active, so we know whether to set icon.
+      ---- 2. Check sessioncache local status. [side note: what happens if the page loads before blacklist is checked?]
+        ---- 2.1. If blacklisted, do not inject script, and terminate here.
+          ---- 2.1.1. Set icon to blacklisted, if tab is active.
+        ---- 2.2. If not blacklisted, inject script with auth token passed.
+
+        Upon successful script injection:
+          ---- 1. Set sessionCache status to "initialised"
+          ---- 2. If tab is active, set icon/popups to green. Otherwise, will be set on tab switch event
+          --- 3. Complete!
+
+  OTHER EVENTS:
+    On tab close
+      Destroy session variable
+
+    On browser close
+      Dump entire session cache.
+
+    Popup: Add to blacklist
+      Retrieves blacklist from chrome storage.
+      Gets the HOSTNAME of the current tab.
+      Appends it to list as new object.
+      Saves blacklist.
+      Refreshes page.
+
+    Popup: On pause/unpause
+      Set global pause status.
+      Write status to chrome.storage.
+
+    Popup: On sign out/in
+      Set global status to signed out/in
+      Sign out.
+
+
+    On event page unload:
+      Write current sessionCache object to localStorage.
+
+
+*/

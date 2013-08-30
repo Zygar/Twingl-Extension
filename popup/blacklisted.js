@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
       pauseTwingl.pause();
     });
     $("#remove-from-blacklist").click(function() {
-
+      blackLister.unblacklist();
     });
 
   });
