@@ -5,8 +5,8 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.append("<div id='twingler'><button id='twingler-close'>Done</button><input type='search' id='twingler-search-field'><button id='twingler-search'>Search</button><ul class='twingl-search-results'></ul></div>");
-    this.$twingler = $("#twingler");
+    this.annotator.wrapper.append("<div id='twingler-outer'><div id='twingler-inner'><div class='twingl-current'><blockquote class='twingl-current-highlight'></blockquote><span class='twingl-current-comment'></span></div><button id='twingler-close'>Done</button><input type='search' id='twingler-search-field'><button id='twingler-search'>Search</button><ul class='twingl-search-results'></ul></div></div>");
+    this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
 
@@ -24,6 +24,8 @@ var twingler = {
     this.$twingler.show();
     this.currentAnnotation = annotation;
     this.currentTwinglings = annotation.twinglings;
+    this.$twingler.find(".twingl-current-highlight").text(twingler.currentAnnotation.quote);
+    this.$twingler.find(".twingl-current-comment").text(twingler.currentAnnotation.text);
   },
   search: function(query) {
     // TODO: Hook up "Working" state. 
@@ -73,7 +75,7 @@ var twingler = {
   renderResults: function(results) {
     // TODO : Return "No Results" if empty.
 
-    $searchresults = $("#twingler .twingl-search-results");
+    $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.empty();
     
     for (var i = results.length - 1; i >= 0; i--) {
