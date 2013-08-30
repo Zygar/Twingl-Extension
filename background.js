@@ -8,14 +8,14 @@ var seedStorage = {
 };
 
 // DEV: Reset storage.
-chrome.runtime.onInstalled.addListener(function() {
-  chrome.storage.sync.clear(function(){
-    console.log("The extension has been updated. Dumping storage.");
-  });
-  chrome.storage.sync.set(seedStorage, function(){
-    console.log("New storage value has been set.");
-  })
-});
+// chrome.runtime.onInstalled.addListener(function() {
+//   chrome.storage.sync.clear(function(){
+//     console.log("The extension has been updated. Dumping storage.");
+//   });
+//   chrome.storage.sync.set(seedStorage, function(){
+//     console.log("New storage value has been set.");
+//   })
+// });
 
 
 /* $01 – EVENT PAGE INITIALISED */
@@ -37,24 +37,18 @@ var sessionCache = {
 
 /* Define functions to run on initialisation */
 function getGlobalState() {
+  chrome.storage.sync.get(null, function(data){console.log(data)})
   chrome.storage.sync.get('paused', function(data) {
     if (data.paused === true) {
       sessionCache.global_status = "paused";
     }
     else {
-      checkAuth();
+      authTwingl.check();
     }
   })
 };
 
-function checkAuth() {
-  if (twingl.getAccessToken()) {
-    window.token = twingl.getAccessToken();
-    sessionCache.global_status = "active";
-  } else {
-    sessionCache.global_status = "signed_out";
-  }
-};
+
 
 /* Other important functions */
 function checkBlacklist(url) {
@@ -87,6 +81,7 @@ getGlobalState();
 chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
   if (sessionCache.global_status != "active") {
     console.log("Stopping. The browser plugin is in this state:", sessionCache.global_status);
+    if(tab.active == true) {browserAction.setState(sessionCache.global_status)}
   } else {
     // Anything in this else block will fire on ANY update event.
     // Including tab pinning, load and complete.
@@ -105,9 +100,9 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       console.log("Tab is loaded", id);
 
       if (sessionCache.tabs[id].state == "blacklisted") {
-        if (tab.active == true) {console.log("tab is active, site is blacklisted")};
-        // If it's blacklisted, we want to terminate here. 
-        // If it's the active tab, we'll set the icon too. 
+        if (tab.active == true) {
+          browserAction.setState("blacklisted");
+        }
       } else {
         injectTwingl(tab);
       }
@@ -121,6 +116,7 @@ function injectTwingl(tab) {
       sessionCache.tabs[tab.id].state = "initialised";
       if (tab.active == true) {
         console.log("Script initialised in ACTIVE TAB! Set icon/popup NOW!")
+        browserAction.setState("active");
       } else {
         console.log("Script initialised in BACKGROUND TAB! Set icon/popup on tab switch.")
       }
@@ -131,25 +127,35 @@ function injectTwingl(tab) {
 
 /* Tab Switch */
 chrome.tabs.onActivated.addListener(function(tab){
+  /* NOTE. I just realised that it's possible to assign an icon and a popup specifically to a tab ID. 
+     Some of this logic, then, might be unnecessary. But I'm not sure. At any rate, it's not the worst inefficiency 
+     in the world and you can refactor again later. 
+  */
   console.log("Switched to tab", sessionCache.tabs[tab.tabId]);
 
   if (sessionCache.global_status == "active") {
     if (sessionCache.tabs[tab.tabId] == undefined ) {
-      console.log("This is either a new foreground tab, or the extension was inactive when this tab was created.")
+      console.log("This is either a new foreground tab, or the extension was inactive when this tab was created. We'll display a 'refresh' popup. ")
+      browserAction.setState("unknown");
+
     } else {
       var state = sessionCache.tabs[tab.tabId].state;
       if (state == "initialised") {
-        console.log("You've switched to an initialised tab. Green icon for you!")
+        console.log("You've switched to an initialised tab. Green icon for you!");
+        browserAction.setState("active");
       } else if (state == "blacklisted") {
         console.log("this is a blacklisted site, we're going dark")
+        browserAction.setState("blacklisted");
       } else if (state == "loading") {
         console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
+        browserAction.setState("unknown");
       }
     }
   } else if(sessionCache.global_status == "paused") {
     console.log("Paused. Show the paused icon.")
+    browserAction.setState("paused"); 
   } else if (sessionCache.global_status == "signed_out") {
-    console.log("Signed out. Show the signed out stuff.")
+    browserAction.setState("signed_out"); 
   } else {
     console.log("Something unexpected happened.", sessionCache)
   }
@@ -159,9 +165,7 @@ chrome.tabs.onActivated.addListener(function(tab){
 // BIG todos: 
 // persist blacklist in chrome storage
 // persist sessions in localstorage
-// different popups
 // event bindings 
-// icon setting. 
 
 /*
   On Event Page load:
@@ -235,117 +239,120 @@ chrome.tabs.onActivated.addListener(function(tab){
 
 
 */
+var authTwingl = {
+  auth: function() {
+    twingl.authorize(function() {
+      authTwingl.check();
+    });
+  },
+  unauth: function() {
+    twingl.clearAccessToken();
+    browserAction.setState("signed_out");
+    this.check();
+  }, 
+  check: function() {
+    if (twingl.getAccessToken()) {
+      window.token = twingl.getAccessToken();
+      sessionCache.global_status = "active";
+    } else {
+      sessionCache.global_status = "signed_out";
+    }
+  }
+};
 
 
-
-
-
-
-
-function getPageURL() {
-
+var browserAction = {
+  icons: {
+    active: {
+      path: {
+        "19": "icons/active.png",
+        "38": "icons/active@2x.png"  
+      }
+    },
+    blacklisted: {
+      path: {
+        "19": "icons/blacklisted.png",
+        "38": "icons/blacklisted@2x.png"  
+      }
+    },
+    paused: {
+      path: {
+        "19": "icons/inactive.png",
+        "38": "icons/inactive@2x.png"
+      }
+    },
+    signed_out: {
+      path: {
+        "19": "icons/inactive.png",
+        "38": "icons/inactive@2x.png"
+      }
+    },
+    unknown: {
+      path: {
+        "19": "icons/inactive.png",
+        "38": "icons/inactive@2x.png"  
+      }
+    }
+  },
+  popups: {
+    active: {
+      popup: "popup/active.html"
+    },
+    blacklisted: {
+      popup: "popup/blacklisted.html"
+    },
+    paused: {
+      popup: "popup/paused.html"
+    },
+    signed_out: {
+      popup: "popup/signed_out.html"
+    },
+    unknown: {
+      popup: "popup/unknown.html"
+    }
+  },
+  setState: function(state) {
+    chrome.browserAction.setIcon(this.icons[state]);
+    chrome.browserAction.setPopup(this.popups[state]);
+  }
 }
 
+var pauseTwingl = {
+  pause: function() {
+    chrome.storage.sync.set({paused: true}, function(){
+      browserAction.setState("paused");
+      sessionCache.global_status = "paused";
+    });
+  },
+  unpause: function() {
+    chrome.storage.sync.set({paused: false}, function(){
+      browserAction.setState("active");
+      sessionCache.global_status = "active"; // Assume it's active and not signed out because YOLO
+    });
+    chrome.tabs.query({active: true, currentWindow: true}, function(data){
+      if (sessionCache.tabs[data[0].id] == undefined) {
+        browserAction.setState("unknown");
+      } else if (sessionCache.tabs[data[0].id].state == "blacklisted") {
+        browserAction.setState("blacklisted");    
+      } else if (sessionCache.tabs[data[0].id].state == "initialised") {
+        browserAction.setState("active");
+      } else {
+        browserAction.setState("unknown");
+        console.log("Don't know if this should ever fire.")
+      }
+    });
+  }
+}
 
+var blackLister = {
+  add: function() {},
+  remove: function() {} 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// twingl.authorize(function() {
-//   var API_URL = "http://api.twin.gl/api/flux/";
-//   console.log("We have sent an auth request!")
-//   function callApi(action) {
-//     // Make an XHR that creates the task
-//     var xhr = new XMLHttpRequest();
-//     xhr.onreadystatechange = function(event) {
-//       if (xhr.readyState == 4) {
-//         if (xhr.status == 200) {
-//           // Great success: parse response with JSON
-//           $('#message').text(xhr.response);
-
-//         } else {
-//           // In our server there is problem.
-//           $('#message').text('Error. Status returned: ' + xhr.status);
-//         }
-//       }
-//     };
-//     xhr.open('GET', API_URL + action, true);
-//     xhr.setRequestHeader('Authorization', 'Bearer ' + twingl.getAccessToken());
-//     xhr.send();
-//   }
-// });
-
-
-
-
-
-
-
-
-// var checkBlacklist = function(list, url) {
-//   for (var i = list.length - 1; i >= 0; i--) {
-//     if(list[i] == url) {
-//       console.log("This site is in the blacklist. Not loading.")
-//       return {blacklisted: true, index: i}
-//     }
-//   };
-//   // If it makes it through the loop, the item is obv. not there. So return false.
-//   return false;
-// }
-
-// chrome.storage.sync.get("paused", function(data){
-//   if (data.paused == true) {
-//     chrome.browserAction.setIcon({path: 'icon-sleeping.png'});
-//     return false;
-//   }
-//   else {return false;}
-// })
-
-// chrome.storage.onChanged.addListener(function(changes, namespace) {
-//   console.log(changes);
-//   if (changes.paused != undefined) {
-//     if (changes.paused.newValue == false) {
-//       chrome.browserAction.setIcon({path: 'icon.png'});
-//     } else {
-//       chrome.browserAction.setIcon({path: 'icon-sleeping.png'});
-//     }
-//   }
-// });
-
-
-
-// /** Example of a Message Listener. This can later be repurposed to tell
-//     the content script whether or not a user is logged in.*/
-// chrome.runtime.onMessage.addListener(
-//   function(request, sender, sendResponse) {
-//     console.log(sender.tab + sender.tab.url);
-//     if (request.request == "auth_token") {
-//       console.log("This will fire every time a page is loaded.")
-//       sendResponse({
-//         token: window.token
-//       });
-//     }
-//   });
-
-// chrome.runtime.onMessage.addListener(
-//   function(request, sender, sendResponse) {
-//     if (request.blacklist == "blacklist") {
-//       console.log(request);
-//       sendResponse({
-//         exists: checkBlacklist(request.list, request.url)
-//       });
-//     }
-//   });
+var miscActions = {
+  refresh: function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(data){
+      chrome.tabs.reload(data[0].id);
+    })
+  }
+}

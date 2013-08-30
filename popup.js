@@ -1,5 +1,5 @@
-var twingl = chrome.extension.getBackgroundPage().twingl;
-var checkBlacklist = chrome.extension.getBackgroundPage().checkBlacklist;
+var twingl = chrome.runtime.getBackgroundPage().twingl;
+var checkBlacklist = chrome.runtime.getBackgroundPage().checkBlacklist;
 var getHostname = function (url) {
   var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
   return domain;
