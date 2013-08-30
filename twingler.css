@@ -1,3 +1,17 @@
+.twingler * {
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  background: none;
+  transition: none;
+  box-shadow: none;
+  color: #444;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
 #twingler-outer {
   position: fixed;
   display: none;
@@ -22,20 +36,66 @@
   margin-left: -35%;
   margin-top: -35%;
 
-  background-color: #e7e7e3;
+  background-color: #f7f7f3;
   border: 2px solid #000;
+
+}
+
+#twingler-search-field {
+  width: 100%;
+  line-height: 48px;
+  border: none;
+  border-bottom: 1px solid #E7E7E3;
+  background-color: #FFF;
+  padding-left: 40px;
+  padding-right: 40px;
+  
+}
+
+#twingler-close {
+  background-color: #734C85;
+  border: none;
+  width: 100%;
+  margin: 0;
+  color: #FFF;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 20px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+
+.twingl-returned-result {
+  padding: 20px 40px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.working {
+  background-color: rgba(40,40,40,0.25);
+  color: #E7E7E3;
 }
 
 body.modal-open {
   overflow: hidden;
 }
 
-.twingl-current-highlight {
+.twingl-current {
+  background-color: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: 40px;
+}
 
+.twingl-current-highlight {
+  font-size: 1.25em;
 }
 
 .twingl-current-comment {
-
+  font-size: 0.75em;
 }
 
 .synapse-selected {
@@ -50,9 +110,7 @@ body.modal-open {
   color: green;
 }
 
-.working {
-  background-color: red;
-}
+
 
 .twingling {
   display: block;

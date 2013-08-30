@@ -5,7 +5,7 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.append("<div id='twingler-outer'><div id='twingler-inner'><div class='twingl-current'><blockquote class='twingl-current-highlight'></blockquote><span class='twingl-current-comment'></span></div><button id='twingler-close'>Done</button><input type='search' id='twingler-search-field'><button id='twingler-search'>Search</button><ul class='twingl-search-results'></ul></div></div>");
+    this.annotator.wrapper.append("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter.'><ul class='twingl-search-results'></ul><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
     this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
@@ -14,8 +14,10 @@ var twingler = {
     $('#twingler-close').click(function() {
       twingler.done();
     });
-    $('#twingler-search').click(function() {
-      twingler.search(that.$searchfield.val());
+    $('#twingler-search-field').keypress(function(event) {
+      if (event.which == 13) {
+        twingler.search(that.$searchfield.val())
+      };
     });
 
     console.log("Twingler has been initialised.", this);
