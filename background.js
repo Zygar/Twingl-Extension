@@ -92,11 +92,13 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       };
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
+
       if (sessionCache.tabs[id].state == "blacklisted") {
+        if (tab.active == true) {console.log("tab is active, site is blacklisted")};
         // If it's blacklisted, we want to terminate here. 
         // If it's the active tab, we'll set the icon too. 
       } else {
-        // ENGAGE LAUNCH SEQUENCE! 
+        injectTwingl(tab);
       }
     }
   }
@@ -118,13 +120,26 @@ function getHostname(url) {
   return domain;
 };
 
+
+function injectTwingl(tab) {
+  chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'"}, function(){
+    chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function(){      
+      if (tab.active == true) {
+        console.log("tab is active, script is injected")
+      } else {
+        console.log("Initialised content script in background tab.")
+      }
+    })
+  })
+};
+
 /*
   On Event Page load:
   (This stuff happens EVERY TIME event page initialises regardless of state.)
     1. Retrieve pause status, assign to sessionCache object.
-    2. Check if there's an auth token:
+    ----2. Check if there's an auth token:
       1.1. If yes, but expired, request a new one, set state to authed.
-      1.2. If no, set state to signed out.
+      ----1.2. If no, set state to signed out.
     3. Retrieve session states from the localStorage cache.
 
   On tab switch:
@@ -196,13 +211,7 @@ function getHostname(url) {
 
 
 
-function injectTwingl(tab_id) {
-  chrome.tabs.executeScript(tab_id, {code: "var token = '"+window.token+"'"}, function(){
-    chrome.tabs.executeScript(tab_id, {file: 'twingl_content.js'}, function(){
-      console.log("Initialised content script.")
-    })
-  })
-};
+
 
 function getPageURL() {
 
