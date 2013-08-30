@@ -56,6 +56,23 @@ function checkAuth() {
   }
 };
 
+/* Other important functions */
+function checkBlacklist(url) {
+  // TODO: Retrieve from storage. 
+  // OTHER TODO: We might need to hardcode exceptions for certain URL patterns. No file:// etc
+  var hostname = getHostname(url);
+  console.log("Checking", hostname); 
+  if (seedStorage.blacklist[hostname] == true) {
+    return true;
+  } else {return false}
+};
+
+function getHostname(url) {
+  var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
+  return domain;
+};
+
+
 /* Set State Variable */
 getGlobalState();
 
@@ -64,12 +81,6 @@ getGlobalState();
 
 
 /* $02 – MAIN EVENTS */
-/* Tab Switch */
-chrome.tabs.onActivated.addListener(function(){
-  console.log("Switched to a tab, bro.")
-})
-
-
 /* Tab Update */
 /* This listener fires when a tab starts loading, finishes loading. */
 
@@ -102,36 +113,55 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       }
     }
   }
-  
 });
-
-function checkBlacklist(url) {
-  // TODO: Retrieve from storage. 
-  // OTHER TODO: We might need to hardcode exceptions for certain URL patterns. No file:// etc
-  var hostname = getHostname(url);
-  console.log("Checking", hostname); 
-  if (seedStorage.blacklist[hostname] == true) {
-    return true;
-  } else {return false}
-};
-
-function getHostname(url) {
-  var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
-  return domain;
-};
-
 
 function injectTwingl(tab) {
   chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'"}, function(){
-    chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function(){      
+    chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function() {
+      sessionCache.tabs[tab.id].state = "initialised";
       if (tab.active == true) {
-        console.log("tab is active, script is injected")
+        console.log("Script initialised in ACTIVE TAB! Set icon/popup NOW!")
       } else {
-        console.log("Initialised content script in background tab.")
+        console.log("Script initialised in BACKGROUND TAB! Set icon/popup on tab switch.")
       }
     })
   })
 };
+
+
+/* Tab Switch */
+chrome.tabs.onActivated.addListener(function(tab){
+  console.log("Switched to tab", sessionCache.tabs[tab.tabId]);
+
+  if (sessionCache.global_status == "active") {
+    if (sessionCache.tabs[tab.tabId] == undefined ) {
+      console.log("This is either a new foreground tab, or the extension was inactive when this tab was created.")
+    } else {
+      var state = sessionCache.tabs[tab.tabId].state;
+      if (state == "initialised") {
+        console.log("You've switched to an initialised tab. Green icon for you!")
+      } else if (state == "blacklisted") {
+        console.log("this is a blacklisted site, we're going dark")
+      } else if (state == "loading") {
+        console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
+      }
+    }
+  } else if(sessionCache.global_status == "paused") {
+    console.log("Paused. Show the paused icon.")
+  } else if (sessionCache.global_status == "signed_out") {
+    console.log("Signed out. Show the signed out stuff.")
+  } else {
+    console.log("Something unexpected happened.", sessionCache)
+  }
+  
+})
+
+// BIG todos: 
+// persist blacklist in chrome storage
+// persist sessions in localstorage
+// different popups
+// event bindings 
+// icon setting. 
 
 /*
   On Event Page load:
@@ -141,14 +171,17 @@ function injectTwingl(tab) {
       1.1. If yes, but expired, request a new one, set state to authed.
       ----1.2. If no, set state to signed out.
     3. Retrieve session states from the localStorage cache.
+  
+  On event page unload
+  1. Push session states to localStorage cache. 
 
   On tab switch:
   (switch, new foreground tab. This check will fire BEFORE tab.update)
-    0. Check global state. If paused or signed out, do no further checks. [Bind popup to respective action.]
-    1. Check the tab id against session cache object. Does it exist?.
-      1.1. If NO, it's a new foreground tab, or the extension was paused or signed out when this tab was created. (how to handle?)
-      1.2. If YES, check state. Is it loading, initialised or blacklisted?
-    2. Set icon and change active popup based on the retrieved state.
+    -- 0. Check global state. If paused or signed out, do no further checks. [Bind popup to respective action.]
+    -- 1. Check the tab id against session cache object. Does it exist?.
+      -- 1.1. If NO, it's a new foreground tab, or the extension was paused or signed out when this tab was created. (how to handle?)
+      -- 1.2. If YES, check state. Is it loading, initialised or blacklisted?
+    2. Set icons, change active popup based on the retrieved state.
 
   On tab update:
   (refresh, new tab(background or foreground), navigate to new page)
@@ -158,23 +191,19 @@ function injectTwingl(tab) {
       ----1.1. If paused or signed out, execute no further. (N.B. NO icon/popup code here. That is a tab switch concern.)
       ----1.2. Else, set up a listener for the "loaded" event.
     ---2. Create or update sessioncache object.
-          $tab_id: {
-            url: $tab_url,
-            state: "loading"
-          }
     3. Retrieve blacklist from chrome storage. ---Check HOSTNAME against blacklist.
       ---3.1. If exists, set state to "blacklisted".
 
 
     Upon 'loaded' event:
       1. Check if tab is active, so we know whether to set icon.
-      2. Check sessioncache local status. [side note: what happens if the page loads before blacklist is checked?]
-        2.1. If blacklisted, do not inject script, and terminate here.
+      ---- 2. Check sessioncache local status. [side note: what happens if the page loads before blacklist is checked?]
+        ---- 2.1. If blacklisted, do not inject script, and terminate here.
           2.1.1. Set icon to blacklisted, if tab is active.
-        2.2. If not blacklisted, inject script with auth token passed.
+        ---- 2.2. If not blacklisted, inject script with auth token passed.
 
         Upon successful script injection:
-          1. Set sessionCache status to "initialised"
+          ---- 1. Set sessionCache status to "initialised"
           2. If tab is active, set icon/popups to green. Otherwise, will be set on tab switch event
           3. Complete!
 
