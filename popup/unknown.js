@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var miscActions = page.miscActions;
     $("#refresh").click(function(){
       miscActions.refresh();
+      window.close();
     });
   });
 });

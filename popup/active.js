@@ -6,12 +6,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $("#sign-out").click(function() {
       authTwingl.unauth();
+      window.close();
     });
     $("#pause").click(function() {
       pauseTwingl.pause();
+      window.close();
     });
     $("#add-to-blacklist").click(function() {
       blackLister.add()
+      window.close();
     });
   });
 });

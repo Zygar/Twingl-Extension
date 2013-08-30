@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var pauseTwingl = page.pauseTwingl;
     $("#unpause").click(function() {
       pauseTwingl.unpause();
+      window.close();
     });
   });
 });

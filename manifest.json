@@ -16,7 +16,7 @@
       "19": "icons/inactive.png",
       "38": "icons/inactive@2x.png"
       },
-    "default_popup": "popup-signedout.html"
+    "default_popup": "popup/unknown.html"
   },
   "content_scripts": [
     {

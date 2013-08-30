@@ -2,20 +2,7 @@
 <html>
   <head>
     <title>Popup</title>
-    <style>
-      body {
-        min-width: 357px;
-        overflow-x: hidden;
-      }
-
-      img {
-        margin: 5px;
-        border: 2px solid black;
-        vertical-align: middle;
-        width: 75px;
-        height: 75px;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/popup.css">
 
     <!--
       - JavaScript and HTML must be in separate files: see our Content Security
@@ -27,6 +14,7 @@
     <script src="unknown.js"></script>
   </head>
   <body>
+    <p class="warning">Extension is in an unknown state. Either this tab is currently loading; the tab was created while the extension was deactivated, or something has gone weird. Try switching tabs or refreshing.</p>
     <button id="refresh" class="btn  btn--refresh">Refresh</button>
   </body>
 </html>

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var authTwingl = page.authTwingl;
     $("#sign-in").click(function() {
       authTwingl.auth();
+      window.close();
     });
   });
 });
