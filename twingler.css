@@ -26,9 +26,12 @@
   border: 2px solid #000;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
 
 .twingl-current-highlight {
-  
+
 }
 
 .twingl-current-comment {

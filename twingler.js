@@ -22,6 +22,7 @@ var twingler = {
   },
   begin: function(annotation) {
     this.$twingler.show();
+    $('body').addClass("modal-open");
     this.currentAnnotation = annotation;
     this.currentTwinglings = annotation.twinglings;
     this.$twingler.find(".twingl-current-highlight").text(twingler.currentAnnotation.quote);
@@ -88,6 +89,7 @@ var twingler = {
   done: function() {
     this.$twingler.hide();
     this.currentTwinglings = []; 
+    $('body').removeClass("modal-open");
     // TODO: Unset all values, like search results. 
   },
   unload: function() {
