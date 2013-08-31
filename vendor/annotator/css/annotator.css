@@ -44,7 +44,7 @@
 -------------------------------------------------------------------- */
 
 .annotator-hl {
-	background: rgba(255, 255, 10, 0.3);
+	background: rgba(255, 208, 21, 0.33);
 }
 
 .annotator-hl-temporary {
@@ -449,7 +449,7 @@
 	text-align: right;
 	padding: 3px;
 	border-top: 1px solid rgb(212,212,212);
-	background-color: rgb(212, 212, 212);
+	background-color: #ebe6e0;
 
 }
 
@@ -473,54 +473,15 @@
 	line-height: 24px;
 	font-size: 12px;
 	font-weight: bold;
-	border: 1px solid rgb(162, 162, 162);
-	background-color: rgb(212, 212, 212);
-	background-image: -webkit-gradient(
-		linear, left top, left bottom,
-		from(rgb(245, 245, 245)),
-		color-stop(0.5, rgb(210, 210, 210)),
-		color-stop(0.5, rgb(190, 190, 190)),
-		to(rgb(210, 210, 210))
-	);
-	background-image: -moz-linear-gradient(
-	    to bottom,
-	    rgb(245, 245, 245),
-	    rgb(210, 210, 210) 50%,
-	    rgb(190, 190, 190) 50%,
-	    rgb(210, 210, 210)
-	);
-	background-image: -webkit-linear-gradient(
-	    to bottom,
-	    rgb(245, 245, 245),
-	    rgb(210, 210, 210) 50%,
-	    rgb(190, 190, 190) 50%,
-	    rgb(210, 210, 210)
-	);
-	background-image: linear-gradient(
-	    to bottom,
-	    rgb(245, 245, 245),
-	    rgb(210, 210, 210) 50%,
-	    rgb(190, 190, 190) 50%,
-	    rgb(210, 210, 210)
-	);
-	-webkit-box-shadow: 
-		inset 0 0 5px rgba(255, 255, 255, 0.2),
-		inset 0 0 1px rgba(255, 255, 255, 0.8);
-	-moz-box-shadow:
-		inset 0 0 5px rgba(255, 255, 255, 0.2),
-		inset 0 0 1px rgba(255, 255, 255, 0.8);
-	-o-box-shadow:
-		inset 0 0 5px rgba(255, 255, 255, 0.2),
-		inset 0 0 1px rgba(255, 255, 255, 0.8);
-	box-shadow:
-		inset 0 0 5px rgba(255, 255, 255, 0.2),
-		inset 0 0 1px rgba(255, 255, 255, 0.8);
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	-o-border-radius: 5px;
-	border-radius: 5px;
+	border: none;
+	background-color: #e0d6cd;
+	box-shadow: 0 1px rgba(66, 58, 51, 0.9);
+	border-radius: 4px;
+	
 }
-
+.annotator-cancel {
+	float: left;
+}
 .annotator-editor a::after {
 	position: absolute;
 	top: 50%;
@@ -552,34 +513,6 @@
 	outline: none;
 	border-color: rgb(67, 90, 160);
 	background-color: rgb(56, 101, 249);
-	background-image: -webkit-gradient(
-		linear, left top, left bottom,
-		from(rgb(118, 145, 251)),
-		color-stop(0.5, rgb(80, 117, 251)),
-		color-stop(0.5, rgb(56, 101, 249)),
-		to(rgb(54, 101, 250))
-	);
-	background-image: -moz-linear-gradient(
-	    to bottom,
-	    rgb(118, 145, 251),
-	    rgb(80, 117, 251) 50%,
-	    rgb(56, 101, 249) 50%,
-	    rgb(54, 101, 250)
-	);
-	background-image: -webkit-linear-gradient(
-	    to bottom,
-	    rgb(118, 145, 251),
-	    rgb(80, 117, 251) 50%,
-	    rgb(56, 101, 249) 50%,
-	    rgb(54, 101, 250)
-	);
-	background-image: linear-gradient(
-	    to bottom,
-	    rgb(118, 145, 251),
-	    rgb(80, 117, 251) 50%,
-	    rgb(56, 101, 249) 50%,
-	    rgb(54, 101, 250)
-	);
 	color: rgb(255, 255, 255);
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.42);
 }
@@ -590,38 +523,17 @@
 	background-position: 0 -105px;
 }
 
+.annotator-editor a#twinglings:hover::after,
+.annotator-editor a#twinglings:focus::after {
+	margin-top: -7px;
+	background-position: 0;
+}
+
 .annotator-editor a:active,
 .annotator-filter .annotator-filter-navigation button:active {
 	border-color: rgb(112, 12, 73);
 	background-color: rgb(209, 46, 142);
-	background-image: -webkit-gradient(
-		linear, left top, left bottom,
-		from(rgb(252, 124, 202)),
-		color-stop(0.5, rgb(232, 93, 178)),
-		color-stop(0.5, rgb(209, 46, 142)),
-		to(rgb(255, 0, 156))
-	);
-	background-image: -moz-linear-gradient(
-	    to bottom,
-	    rgb(252, 124, 202),
-	    rgb(232, 93, 178) 50%,
-	    rgb(209, 46, 142) 50%,
-	    rgb(255, 0, 156)
-	);
-	background-image: -webkit-linear-gradient(
-	    to bottom,
-	    rgb(252, 124, 202),
-	    rgb(232, 93, 178) 50%,
-	    rgb(209, 46, 142) 50%,
-	    rgb(255, 0, 156)
-	);
-	background-image: linear-gradient(
-	    to bottom,
-	    rgb(252, 124, 202),
-	    rgb(232, 93, 178) 50%,
-	    rgb(209, 46, 142) 50%,
-	    rgb(255, 0, 156)
-	);
+
 }
 
 .annotator-editor a.annotator-save::after {
@@ -640,7 +552,7 @@
 }
 
 .annotator-editor.annotator-invert-y .annotator-widget .annotator-controls {
-	background-color: #f2f2f2;
+	background-color: #ebe6e0;
 }
 
 .annotator-editor.annotator-invert-y .annotator-widget::after {
