@@ -54,7 +54,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     this.annotator.viewer.addField({
       load: function(field, annotation) {
         // Check if a Twingling is Inbound or Outbound, then append it to the list. 
-        if (annotation.twinglings.length > 0) {
+        if (annotation.twinglings && annotation.twinglings.length > 0) {
           for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
             var twingling_id = annotation.twinglings[i].id;
             if (annotation.twinglings[i].start_id === annotation.id) {
