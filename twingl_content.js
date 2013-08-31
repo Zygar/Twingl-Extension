@@ -19,7 +19,7 @@ var annotatorMethods = {
       token: token
     });
     theAnnotator.annotator('addPlugin', 'Store', {
-      prefix: 'http://api.twin.gl/flux/',
+      prefix: 'http://api.twin.gl/v1/',
       urls: {
         create: 'highlights?context=' + window.location,
         read: 'highlights/?context=' + window.location + '&expand=twinglings',

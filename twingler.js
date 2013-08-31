@@ -34,7 +34,7 @@ var twingler = {
     // TODO: Hook up "Working" state. 
 
     $.ajax({
-      url: 'http://api.twin.gl/flux/highlights/search',
+      url: 'http://api.twin.gl/v1/highlights/search',
       type: 'GET',
       data: {
         q: query
@@ -110,7 +110,7 @@ var twinglerCrud = {
     twinglerCrud.working.start($elem);
 
     $.ajax({
-      url: "http://api.twin.gl/flux/twinglings",
+      url: "http://api.twin.gl/v1/twinglings",
       type: "POST",
       data: {
         start_type: "highlights",
@@ -123,7 +123,7 @@ var twinglerCrud = {
         twinglerCrud.working.success($elem);
         $.ajax({ 
           // Get the freshly created Twingling and and attach it to the Annotation object.
-          url: "http://api.twin.gl/flux/twinglings/" + data.id + "?expand=end_object",
+          url: "http://api.twin.gl/v1/twinglings/" + data.id + "?expand=end_object",
           type: "GET",
           success: function(data) {
             twingler.annotator.publish("twinglingCreated", [data, annotation]);
@@ -144,7 +144,7 @@ var twinglerCrud = {
     twinglerCrud.working.start($elem);
 
     $.ajax({
-      url: "http://api.twin.gl/flux/twinglings/" + twingling_id,
+      url: "http://api.twin.gl/v1/twinglings/" + twingling_id,
       type: "DELETE",
       success: function(data) {
         twingler.annotator.publish("twinglingDestroyed", [twingling_id, annotation]);
