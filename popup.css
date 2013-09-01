@@ -9,6 +9,9 @@ body {
 }
 
 .btn {
+  display: block;
+  text-decoration: none;
+  text-align: center;
   font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
   font-size: 0.75em;
   line-height: 3em;
