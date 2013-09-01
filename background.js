@@ -1,79 +1,90 @@
-/* On Install */
-// Technically, this gets set on event page load
-var seedStorage = {
-  paused: false,
-  blacklist: {
-    "google.com": true,
-    "plus.google.com": true,
-    "mail.google.com": true,
-    "login.live.com": true,
-    "kippt.com": true
-  },
-  session: {
-    global_status: null,
-    tabs: {}
-  }
-};
-
-chrome.runtime.onStartup.addListener(function(){
-  chrome.storage.local.remove('session', function(){
-    chrome.storage.local.set({session: seedStorage.session}, function(){console.log("We have obliterated the session cache.")});
+/* Empty session cache on startup. Supposedly. I don't think this actually works. */
+chrome.runtime.onStartup.addListener(function() {
+  chrome.storage.local.remove('session', function() {
+    chrome.storage.local.set({
+      session: {
+        global_status: null,
+        tabs: {}
+      }
+    }, function() {
+      console.log("We have obliterated the session cache.")
+    });
   });
-})
+});
 
-// DEV: Reset storage.
+/* Seed data on installation. Migrate data when schema changes. */
+chrome.runtime.onInstalled.addListener(function() {
+  chrome.storage.local.get(null, function(data){
+    if (data.session == undefined) {
+      seedStorageNow();
+    } else {
+      console.log("This is an upgrade. We'll put schema migrations in here.")
+    }
+  })
 
-// chrome.runtime.onInstalled.addListener(function() {
-//   chrome.storage.local.clear(function(){
-//     console.log("The extension has been updated. Dumping storage.");
-//   });
-//   chrome.storage.local.set(seedStorage, function(){
-//     console.log("New storage value has been set.");
-//   })
-// });
+});
+
+/* DEBUGGING — This will clear all items in local storage. */
+function resetExtension() {
+  chrome.storage.local.clear(function(){
+    console.log("Storage has been totally emptied.")
+  });
+}
+
+function seedStorageNow() {
+  var seedStorage = {
+    paused: false,
+    blacklist: {
+      "google.com": true,
+      "plus.google.com": true,
+      "mail.google.com": true,
+      "login.live.com": true,
+      "kippt.com": true
+    },
+    session: {
+      global_status: null,
+      tabs: {}
+    }
+  };
+  chrome.storage.local.set(seedStorage, function(){
+    console.log("This is a fresh install, so we have seeded your storage.");
+    getLocalCache();
+  })
+}
+
 
 /* $01 – EVENT PAGE INITIALISED */
 
 /* Initialise Variables */
 window.token = null;
+var sessionCache = {};
 var twingl = new OAuth2('twingl', {
   client_id: '94da4493b8c761a20c1a3b4d532d9ab301745c137b88a574298dc1ebe99d5b14',
   client_secret: '6dd8eb63ff97c5f76a41bf3547e89792aef0d0ad45d13c6bc583d5939a3e600d',
   api_scope: 'private'
 });
 
-// Construct an empty sessionCache object.
-var sessionCache = {};
-
-
 /* Define functions to run on initialisation */
-function getGlobalState() {
+function getLocalCache() {
   chrome.storage.local.get(null, function(data) {
-    blackLister.blacklist = data.blacklist;
-    sessionCache = data.session;
-    console.log(data);
-    if (data.paused === true) {
-      sessionCache.global_status = "paused";
-      chrome.storage.local.set({session: sessionCache}, function(){});
-    } else {
-      authTwingl.check();
+    if(data.paused != undefined) { // Check that local cache exists.
+      blackLister.blacklist = data.blacklist;
+      sessionCache = data.session;
+      console.log(data);
+      if (data.paused === true) {
+        sessionCache.global_status = "paused";
+        chrome.storage.local.set({session: sessionCache}, function(){});
+      } else {
+        authTwingl.check();
+      }
+    }
+    else {
+      console.log("Nothing in local storage! Terminating extension.")
     }
   })
 };
 
-
-
-/* Other important functions */
-function checkBlacklist(url) {
-  // TODO: Retrieve from storage. 
-  // OTHER TODO: We might need to hardcode exceptions for certain URL patterns. No file:// etc
-  var hostname = getHostname(url);
-  console.log("Checking", hostname); 
-  if (seedStorage.blacklist[hostname] == true) {
-    return true;
-  } else {return false}
-};
-
+/* Define Helper Functions */
 function getHostname(url) {
   var domain = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
   return domain;
@@ -81,10 +92,7 @@ function getHostname(url) {
 
 
 /* Set State Variable */
-getGlobalState();
-
-/* Retrieve details of current session from localStorage */
-// PENDING.
+getLocalCache();
 
 
 /* $02 – MAIN EVENTS */
@@ -100,7 +108,7 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
     // Including tab pinning, load and complete.
     if (changeInfo.status == "loading") {
       sessionCache.tabs[id] = {
-        url: tab.url, 
+        url: tab.url,
         state: "loading"
       };
       console.log("Loading tab", id);
@@ -142,9 +150,9 @@ function injectTwingl(tab) {
 
 /* Tab Switch */
 chrome.tabs.onActivated.addListener(function(tab){
-  /* NOTE. I just realised that it's possible to assign an icon and a popup specifically to a tab ID. 
-     Some of this logic, then, might be unnecessary. But I'm not sure. At any rate, it's not the worst inefficiency 
-     in the world and you can refactor again later. 
+  /* NOTE. I just realised that it's possible to assign an icon and a popup specifically to a tab ID.
+     Some of this logic, then, might be unnecessary. But I'm not sure. At any rate, it's not the worst inefficiency
+     in the world and you can refactor again later.
   */
   console.log("Switched to tab", sessionCache.tabs[tab.tabId]);
 
@@ -168,13 +176,13 @@ chrome.tabs.onActivated.addListener(function(tab){
     }
   } else if(sessionCache.global_status == "paused") {
     console.log("Paused. Show the paused icon.")
-    browserAction.setState("paused"); 
+    browserAction.setState("paused");
   } else if (sessionCache.global_status == "signed_out") {
-    browserAction.setState("signed_out"); 
+    browserAction.setState("signed_out");
   } else {
     console.log("Something unexpected happened.", sessionCache)
   }
-  
+
 })
 
 
@@ -188,7 +196,7 @@ var authTwingl = {
     twingl.clearAccessToken();
     browserAction.setState("signed_out");
     this.check();
-  }, 
+  },
   check: function() {
     if (twingl.getAccessToken()) {
       window.token = twingl.getAccessToken();
@@ -207,13 +215,13 @@ var browserAction = {
     active: {
       path: {
         "19": "icons/active.png",
-        "38": "icons/active@2x.png"  
+        "38": "icons/active@2x.png"
       }
     },
     blacklisted: {
       path: {
         "19": "icons/blacklisted.png",
-        "38": "icons/blacklisted@2x.png"  
+        "38": "icons/blacklisted@2x.png"
       }
     },
     paused: {
@@ -231,7 +239,7 @@ var browserAction = {
     unknown: {
       path: {
         "19": "icons/inactive.png",
-        "38": "icons/inactive@2x.png"  
+        "38": "icons/inactive@2x.png"
       }
     }
   },
@@ -271,6 +279,7 @@ var pauseTwingl = {
     chrome.storage.local.set({paused: false}, function(){
       browserAction.setState("active");
       sessionCache.global_status = "active"; // Assume it's active and not signed out because YOLO
+      authTwingl.check();
       chrome.storage.local.set({session: sessionCache});
       miscActions.refresh();
     });
@@ -278,7 +287,7 @@ var pauseTwingl = {
       if (sessionCache.tabs[data[0].id] == undefined) {
         browserAction.setState("unknown");
       } else if (sessionCache.tabs[data[0].id].state == "blacklisted") {
-        browserAction.setState("blacklisted");    
+        browserAction.setState("blacklisted");
       } else if (sessionCache.tabs[data[0].id].state == "initialised") {
         browserAction.setState("active");
       } else {
