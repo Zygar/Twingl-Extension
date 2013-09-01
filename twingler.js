@@ -24,6 +24,7 @@ var twingler = {
   },
   begin: function(annotation) {
     this.$twingler.show();
+    this.annotator.viewer.hide();
     $('body').addClass("modal-open");
     this.currentAnnotation = annotation;
     this.currentTwinglings = annotation.twinglings;

@@ -13,7 +13,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
     twingler.init(this.annotator);
     annotatorMethods.annotatorObject = this.annotator;
     
-    $(".annotator-controls").prepend("<a id='twinglings' href='#twingling'>Twinglings</a>");
+    //$(".annotator-controls").prepend("<a id='twinglings' href='#twingling'>Twinglings</a>");
     
     // Subscribe to events
     this.annotator
@@ -68,10 +68,15 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
           };
           $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
         }
-        $(field).append("<button class='twingl-btn' id='twingling-add'>Add Twingling</button>");
-        $('#twingling-add').off('click').on('click', annotation, function(event){
-          twingler.begin(event.data);
-        });
+        if (annotation.id != undefined) {
+          $(field).append("<button class='twingl-btn' id='twingling-add'>Add Twingling</button>");
+          $('#twingling-add').off('click').on('click', annotation, function(event){
+            twingler.begin(event.data);
+          });
+        } else {
+          $(field).append("<small>The highlight is still being created on the server. Try mousing over again in a second or two and you'll be able to make a Twingling then.</small>");
+        }
+                
       }
     });
   },

@@ -479,9 +479,9 @@
 	border-radius: 4px;
 	
 }
-.annotator-cancel {
+/*.annotator-cancel {
 	float: left;
-}
+}*/
 .annotator-editor a::after {
 	position: absolute;
 	top: 50%;
