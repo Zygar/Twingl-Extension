@@ -29,8 +29,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  
   width: 70%;
   height: 560px;
   margin-left: -35%;
@@ -39,6 +38,13 @@
   background-color: #f7f7f3;
   border: 2px solid #000;
 
+}
+
+.twingler-scrollable {
+  height: 90%;
+  position: absolute;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 #twingler-search-field {
@@ -64,8 +70,19 @@
   font-weight: bold;
   letter-spacing: 1px;
   cursor: pointer;
+  position: absolute;
+  bottom: 0;
 }
 
+.twingler-search-status {
+  position: absolute;
+  display: block;
+  width: 100%;
+  padding-top: 2em;
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 1.25em;
+  padding-left: 40px;
+}
 
 .twingl-returned-result {
   padding: 20px 40px;
