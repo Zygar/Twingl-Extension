@@ -5,11 +5,11 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.append("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Create a Twingling to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
+    this.annotator.wrapper.after("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Create a Twingling to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
     this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
-
+    
     // Bind events
     $('#twingler-close').click(function() {
       twingler.done();

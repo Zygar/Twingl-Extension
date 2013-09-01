@@ -241,9 +241,14 @@
 	padding: 12px 0;
 }
 
+.annotator-viewer .active-twingling .twingling small {
+	font-size: 0.9em;
+}
+
 .annotator-viewer .active-twingling .twingling {
 	font-size: 0.9em;
 	color: rgba(66, 58, 51, 0.9);
+	text-decoration: none;
 }
 
 .annotator-viewer .active-twingling::after {
@@ -416,11 +421,9 @@
 }
 
 .annotator-editor .annotator-item:first-child textarea {
-	min-height: 5.5em;
-	-webkit-border-radius: 5px 5px 0 0;
-	-moz-border-radius: 5px 5px 0 0;
-	-o-border-radius: 5px 5px 0 0;
-	border-radius: 5px 5px 0 0;
+	min-height: 12em;
+	line-height: 140%;
+	padding: 20px 20px 20px 20px;
 }
 
 .annotator-editor .annotator-item input:focus,
@@ -449,7 +452,7 @@
 	text-align: right;
 	padding: 3px;
 	border-top: 1px solid rgb(212,212,212);
-	background-color: #ebe6e0;
+	background-color: #AFA598;
 
 }
 
@@ -474,7 +477,7 @@
 	font-size: 12px;
 	font-weight: bold;
 	border: none;
-	background-color: #e0d6cd;
+	background-color: #EBE6E0;
 	box-shadow: 0 1px rgba(66, 58, 51, 0.9);
 	border-radius: 4px;
 	
