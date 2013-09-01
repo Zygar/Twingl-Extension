@@ -15,10 +15,11 @@ chrome.runtime.onStartup.addListener(function() {
 /* Seed data on installation. Migrate data when schema changes. */
 chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.local.get(null, function(data){
-    if (data.session == undefined) {
+    if (data.schemaVersion == undefined) {
       seedStorageNow();
     } else {
       console.log("This is an upgrade. We'll put schema migrations in here.")
+      // We will put "if schemaVersion = whatever" in here.
     }
   })
 
@@ -33,6 +34,7 @@ function resetExtension() {
 
 function seedStorageNow() {
   var seedStorage = {
+    schemaVersion: 1,
     paused: false,
     blacklist: {
       "google.com": true,
@@ -67,7 +69,7 @@ var twingl = new OAuth2('twingl', {
 /* Define functions to run on initialisation */
 function getLocalCache() {
   chrome.storage.local.get(null, function(data) {
-    if(data.paused != undefined) { // Check that local cache exists.
+    if(data.schemaVersion != undefined) { // Check that local cache exists.
       blackLister.blacklist = data.blacklist;
       sessionCache = data.session;
       console.log(data);
@@ -77,8 +79,7 @@ function getLocalCache() {
       } else {
         authTwingl.check();
       }
-    }
-    else {
+    } else {
       console.log("Nothing in local storage! Terminating extension.")
     }
   })
