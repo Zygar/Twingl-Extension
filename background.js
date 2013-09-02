@@ -19,9 +19,9 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.local.get(null, function(data){
     if (data.schemaVersion == undefined) {
       seedStorageNow();
-    } else if (data.schemaVersion = 1) {
+    } else if (data.schemaVersion == 1) {
       console.log("This is an upgrade. We'll put schema migrations in here.")
-      data.schemaVersion = 2; 
+      data.schemaVersion = 2;
       delete data.blacklist;
       data.whitelist = {};
       var newStorage = data;
@@ -211,6 +211,7 @@ var authTwingl = {
       });
       sessionCache.global_status = "active";
       chrome.storage.local.set({session: sessionCache});
+      if(jQuery.isEmptyObject(whiteLister.whitelist)) {whiteLister.update(); console.log("Your whitelist appears to be empty. Checking.")}
     } else {
       sessionCache.global_status = "signed_out";
       chrome.storage.local.set({session: sessionCache});
@@ -307,12 +308,24 @@ var pauseTwingl = {
   }
 }
 
+// TODO: 
+// Occassionally grab a new copy of the whitelist. 
+// Add a site to the local version of the whitelist when a highlight is successfully made. 
+// But only if it's the first time on this hostname.
+/*
+  that one's easy(ish.) We will need message passing and some logic in the content script. (We don't want to wake the background page every time a highlight is made.) 
+  Let's roll it like this. 
+    When Twingl is injected, pass it a variable isWhitelisted. This will be TRUE if injected automatically, FALSE if manually. 
+    
+    when annotationCreatedSuccess (if isWhitelisted == false) {isWhitelisted = true; and send a message to add to whitelist! (or, lazy way, run whiteLister.update())} 
 
+  Yeah. Let's do it like this for now; and trigger a whitelist.update on upgrade... somehow. 
+*/
 var whiteLister = {
   whitelist: {}, 
   update: function() {
     // How often do we need to run this?
-    // Probably just once. 
+    // Probably just once. We could run it every time you add a highlight, but that is kind of lazy. 
     $.ajax({
       url: 'http://api.twin.gl/v1/contexts',
       type: 'GET',
