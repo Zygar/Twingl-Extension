@@ -41,12 +41,12 @@
     }
   ],
   "commands": {
-    "toggle-feature-foo": {
+    "activate-twingler": {
       "suggested_key": {
         "default": "Ctrl+Shift+A",
         "mac": "Command+Shift+A"
       },
-      "description": "Toggle feature foo"
+      "description": "Activate the Twingler"
     }
   },
   "background": {

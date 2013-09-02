@@ -382,7 +382,7 @@ chrome.runtime.onMessage.addListener(
 
 
 chrome.commands.onCommand.addListener(function(command) {
-  if(command == "toggle-feature-foo") {
+  if(command == "activate-twingler") {
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
       tab = data[0];
       console.log(sessionCache.tabs, tab)

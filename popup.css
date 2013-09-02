@@ -63,3 +63,10 @@ body {
 .btn--activate:hover {
   background-color: #93d274;
 }
+
+.tip {
+  font-size: 11px;
+  line-height: 140%;
+  padding: 20px;
+  display: block;
+}
