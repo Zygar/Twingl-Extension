@@ -21,14 +21,17 @@ chrome.runtime.onInstalled.addListener(function() {
       seedStorageNow();
     } else if (data.schemaVersion = 1) {
       console.log("This is an upgrade. We'll put schema migrations in here.")
-      /* data.schemaVersion = 2; 
-      delete data.blacklist; 
-      data.whitelist = getWhitelist();*/
-
-      // We will put "if schemaVersion = whatever" in here.
+      data.schemaVersion = 2; 
+      delete data.blacklist;
+      data.whitelist = {};
+      var newStorage = data;
+      chrome.storage.local.remove('blacklist', function(){
+        chrome.storage.local.set(newStorage, function() {
+          console.log("Update successful!")
+        });  
+      });
     }
   })
-
 });
 
 /* DEBUGGING — This will clear all items in local storage. */
@@ -40,10 +43,9 @@ function resetExtension() {
 
 function seedStorageNow() {
   var seedStorage = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     paused: false,
     whitelist: {
-      "frankchimero.com": true
     },
     session: {
       global_status: null,
@@ -72,7 +74,7 @@ var twingl = new OAuth2('twingl', {
 function getLocalCache() {
   chrome.storage.local.get(null, function(data) {
     if(data.schemaVersion != undefined) { // Check that local cache exists.
-      blackLister.blacklist = data.blacklist;
+      whiteLister.whitelist = data.whitelist;
       sessionCache = data.session;
       console.log(data);
       if (data.paused === true) {
@@ -116,7 +118,7 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       };
       console.log("Loading tab", id);
       console.log(sessionCache.tabs[id]);
-      if (blackLister.check(tab.url) != true) {
+      if (whiteLister.check(tab.url) != true) {
         console.log("Shit is not whitelisted!!");
         sessionCache.tabs[id].state = "inactive";
         chrome.storage.local.set({session: sessionCache});
@@ -306,8 +308,8 @@ var pauseTwingl = {
 }
 
 
-var blackLister = {
-  blacklist: {}, 
+var whiteLister = {
+  whitelist: {}, 
   update: function() {
     // How often do we need to run this?
     // Probably just once. 
@@ -315,12 +317,12 @@ var blackLister = {
       url: 'http://api.twin.gl/v1/contexts',
       type: 'GET',
       success: function(data) {
-        blackLister.blacklist = {};
+        whiteLister.whitelist = {};
         for (var i = data.length - 1; i >= 0; i--) {
-          blackLister.blacklist[getHostname(data[i].url)] = true;
+          whiteLister.whitelist[getHostname(data[i].url)] = true;
         };
         console.log("successfully loaded whitelist")
-        blackLister.save();
+        whiteLister.save();
       },
       error: function(data, status, error) {
         console.log(data, status, error);
@@ -328,30 +330,30 @@ var blackLister = {
     });
   },
   save: function() {
-    chrome.storage.local.set({blacklist: this.blacklist});
+    chrome.storage.local.set({whitelist: this.whitelist});
   },
   add: function() {
     // This should now trigger when an annotation is successfully created; but only if the site's hostname is not already in the whitelist
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
       var url = getHostname(data[0].url);
-      blackLister.blacklist[url] = true;
-      blackLister.save();
+      whiteLister.whitelist[url] = true;
+      whiteLister.save();
       miscActions.refresh();
     });
   },
   unwhitelist: function() {
-    // Not sure when we trigger this yet. 
+    // Remove this. Whenever we might need "unwhitelist", updating your whitelist is probably better.
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
       var url = getHostname(data[0].url);
       console.log(url);
-      delete blackLister.blacklist[url];
-      blackLister.save();
+      delete whiteLister.whitelist[url];
+      whiteLister.save();
       miscActions.refresh();
     });
   },
   check: function(url) {
     var hostname = getHostname(url);
-    if (blackLister.blacklist[hostname] == true) {
+    if (whiteLister.whitelist[hostname] == true) {
       return true;
     } else {
       return false
