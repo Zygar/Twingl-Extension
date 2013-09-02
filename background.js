@@ -341,16 +341,6 @@ var whiteLister = {
       miscActions.refresh();
     });
   },
-  unwhitelist: function() {
-    // Remove this. Whenever we might need "unwhitelist", updating your whitelist is probably better.
-    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
-      var url = getHostname(data[0].url);
-      console.log(url);
-      delete whiteLister.whitelist[url];
-      whiteLister.save();
-      miscActions.refresh();
-    });
-  },
   check: function(url) {
     var hostname = getHostname(url);
     if (whiteLister.whitelist[hostname] == true) {
