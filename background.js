@@ -37,11 +37,7 @@ function seedStorageNow() {
     schemaVersion: 1,
     paused: false,
     blacklist: {
-      "google.com": true,
-      "plus.google.com": true,
-      "mail.google.com": true,
-      "login.live.com": true,
-      "kippt.com": true
+      "frankchimero.com": true
     },
     session: {
       global_status: null,
@@ -121,13 +117,12 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       };
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
-
       if (sessionCache.tabs[id].state == "blacklisted") {
+        injectTwingl(tab);
+      } else {
         if (tab.active == true) {
           browserAction.setState("blacklisted");
         }
-      } else {
-        injectTwingl(tab);
       }
     }
   }
