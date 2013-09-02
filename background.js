@@ -126,7 +126,7 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
       if (sessionCache.tabs[id].state != "inactive") {
-        injectTwingl(tab);
+        injectTwingl(tab, true);
       } else {
         if (tab.active == true) {
           browserAction.setState("inactive");
@@ -136,8 +136,8 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
   }
 });
 
-function injectTwingl(tab) {
-  chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'"}, function(){
+function injectTwingl(tab, isWhitelisted) {
+  chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'; var isWhitelisted = "+isWhitelisted+";"}, function(){
     chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function() {
       sessionCache.tabs[tab.id].state = "initialised";
       chrome.storage.local.set({session: sessionCache});
@@ -309,18 +309,16 @@ var pauseTwingl = {
 }
 
 // TODO: 
-// Occassionally grab a new copy of the whitelist. 
-// Add a site to the local version of the whitelist when a highlight is successfully made. 
-// But only if it's the first time on this hostname.
+// 1. When a highlight is made on a hostname for the first time, update the whitelist. 
 /*
   that one's easy(ish.) We will need message passing and some logic in the content script. (We don't want to wake the background page every time a highlight is made.) 
   Let's roll it like this. 
     When Twingl is injected, pass it a variable isWhitelisted. This will be TRUE if injected automatically, FALSE if manually. 
     
     when annotationCreatedSuccess (if isWhitelisted == false) {isWhitelisted = true; and send a message to add to whitelist! (or, lazy way, run whiteLister.update())} 
-
-  Yeah. Let's do it like this for now; and trigger a whitelist.update on upgrade... somehow. 
 */
+// 2. Either add a page action or a hotkey for initialising Twingler. 
+// 3. Rework the popups to support Whitelisting.
 var whiteLister = {
   whitelist: {}, 
   update: function() {
@@ -364,7 +362,7 @@ var whiteLister = {
   },
   activate: function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
-      injectTwingl(data[0]);
+      injectTwingl(data[0], false);
       //miscActions.refresh();
     });
   }
@@ -383,6 +381,16 @@ chrome.tabs.onRemoved.addListener(function(id) {
   chrome.storage.local.set({session: sessionCache});
 });
 
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    if (request.action == "updateWhitelist") {
+      whiteLister.update();
+    }
+  });
+
 /* Notes 
   There's got to be some way of removing a site from the whitelist if you clobber your annotations.
 */
+
+
+
