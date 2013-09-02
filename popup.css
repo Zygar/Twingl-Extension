@@ -55,3 +55,11 @@ body {
   font-size: 0.75em;
   line-height: 140%;
 }
+
+.btn--activate {
+  background-color: #A3D88A;
+}
+
+.btn--activate:hover {
+  background-color: #93d274;
+}

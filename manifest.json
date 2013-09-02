@@ -40,6 +40,15 @@
       "run_at": "document_start"
     }
   ],
+  "commands": {
+    "toggle-feature-foo": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Toggle feature foo"
+    }
+  },
   "background": {
     "scripts": ["/oauth2/oauth2.js", "background.js", "vendor/jquery-2.0.3.min.js"],
     "persistent": false

@@ -309,16 +309,7 @@ var pauseTwingl = {
 }
 
 // TODO: 
-// 1. When a highlight is made on a hostname for the first time, update the whitelist. 
-/*
-  that one's easy(ish.) We will need message passing and some logic in the content script. (We don't want to wake the background page every time a highlight is made.) 
-  Let's roll it like this. 
-    When Twingl is injected, pass it a variable isWhitelisted. This will be TRUE if injected automatically, FALSE if manually. 
-    
-    when annotationCreatedSuccess (if isWhitelisted == false) {isWhitelisted = true; and send a message to add to whitelist! (or, lazy way, run whiteLister.update())} 
-*/
 // 2. Either add a page action or a hotkey for initialising Twingler. 
-// 3. Rework the popups to support Whitelisting.
 var whiteLister = {
   whitelist: {}, 
   update: function() {
@@ -389,9 +380,19 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
+
+chrome.commands.onCommand.addListener(function(command) {
+  if(command == "toggle-feature-foo") {
+    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
+      tab = data[0];
+      console.log(sessionCache.tabs, tab)
+      if(sessionCache.tabs[tab.id].state == "inactive") {
+        injectTwingl(tab, false);
+      }
+    });
+  }
+});
+
 /* Notes 
-  There's got to be some way of removing a site from the whitelist if you clobber your annotations.
+  There's got to be some way of removing a site from the whitelist if you clobber your annotations. This is prob backend
 */
-
-
-
