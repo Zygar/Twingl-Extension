@@ -41,7 +41,7 @@
     }
   ],
   "background": {
-    "scripts": ["/oauth2/oauth2.js", "background.js"],
+    "scripts": ["/oauth2/oauth2.js", "background.js", "vendor/jquery-2.0.3.min.js"],
     "persistent": false
   }
 }

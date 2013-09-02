@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     $("#remove-from-blacklist").click(function() {
       blackLister.activate();
-      //blackLister.whitelist();
       window.close();
     });
 

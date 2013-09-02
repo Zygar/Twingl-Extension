@@ -1,4 +1,6 @@
 /* Empty session cache on startup. Supposedly. I don't think this actually works. */
+// If you log out, we problably need to clear your session as well.
+// Every so often, we need to update your whitelist to make sure it's current. 
 chrome.runtime.onStartup.addListener(function() {
   chrome.storage.local.remove('session', function() {
     chrome.storage.local.set({
@@ -17,8 +19,12 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.local.get(null, function(data){
     if (data.schemaVersion == undefined) {
       seedStorageNow();
-    } else {
+    } else if (data.schemaVersion = 1) {
       console.log("This is an upgrade. We'll put schema migrations in here.")
+      /* data.schemaVersion = 2; 
+      delete data.blacklist; 
+      data.whitelist = getWhitelist();*/
+
       // We will put "if schemaVersion = whatever" in here.
     }
   })
@@ -36,7 +42,7 @@ function seedStorageNow() {
   var seedStorage = {
     schemaVersion: 1,
     paused: false,
-    blacklist: {
+    whitelist: {
       "frankchimero.com": true
     },
     session: {
@@ -49,7 +55,7 @@ function seedStorageNow() {
     getLocalCache();
   })
 }
-
+// If you log out, we problably need to clear your session
 
 /* $01 – EVENT PAGE INITIALISED */
 
@@ -160,10 +166,10 @@ chrome.tabs.onActivated.addListener(function(tab){
     } else {
       var state = sessionCache.tabs[tab.tabId].state;
       if (state == "initialised") {
-        console.log("You've switched to an initialised tab. Green icon for you!");
+        console.log("You've switched to an initialised tab. Purple icon for you!");
         browserAction.setState("active");
       } else if (state == "inactive") {
-        console.log("this is a blacklisted site, we're going dark")
+        console.log("This site is not whitelisted, so we are going to go dark.")
         browserAction.setState("inactive");
       } else if (state == "loading") {
         console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
@@ -196,6 +202,11 @@ var authTwingl = {
   check: function() {
     if (twingl.getAccessToken()) {
       window.token = twingl.getAccessToken();
+      $.ajaxSetup({
+        headers: {
+          'Authorization': 'Bearer ' + window.token
+        }
+      });
       sessionCache.global_status = "active";
       chrome.storage.local.set({session: sessionCache});
     } else {
@@ -294,12 +305,30 @@ var pauseTwingl = {
   }
 }
 
+
 var blackLister = {
-  blacklist: {},
+  blacklist: {}, 
+  update: function() {
+    $.ajax({
+      url: 'http://api.twin.gl/v1/contexts',
+      type: 'GET',
+      success: function(data) {
+        for (var i = data.length - 1; i >= 0; i--) {
+          blackLister.blacklist[getHostname(data[i].url)] = true;
+        };
+        console.log("successfully loaded whitelist")
+        blackLister.save();
+      },
+      error: function(data, status, error) {
+        console.log(data, status, error);
+      }
+    });
+  },
   save: function() {
     chrome.storage.local.set({blacklist: this.blacklist});
   },
   add: function() {
+    // This should now trigger when an annotation is successfully created; but only if the site's hostname is not already in the whitelist
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
       var url = getHostname(data[0].url);
       blackLister.blacklist[url] = true;
@@ -307,7 +336,8 @@ var blackLister = {
       miscActions.refresh();
     });
   },
-  unblacklist: function() {
+  unwhitelist: function() {
+    // Not sure when we trigger this yet. 
     chrome.tabs.query({active: true, currentWindow: true}, function(data) {
       var url = getHostname(data[0].url);
       console.log(url);
