@@ -3,7 +3,7 @@
 
   "name": "Twingl",
   "description": "Synapses for the Web.",
-  "version": "0.1.0",
+  "version": "0.2.0",
 
   "permissions": [
     "http://*/*", 
