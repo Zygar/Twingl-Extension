@@ -309,10 +309,13 @@ var pauseTwingl = {
 var blackLister = {
   blacklist: {}, 
   update: function() {
+    // How often do we need to run this?
+    // Probably just once. 
     $.ajax({
       url: 'http://api.twin.gl/v1/contexts',
       type: 'GET',
       success: function(data) {
+        blackLister.blacklist = {};
         for (var i = data.length - 1; i >= 0; i--) {
           blackLister.blacklist[getHostname(data[i].url)] = true;
         };
