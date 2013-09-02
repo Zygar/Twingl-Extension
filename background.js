@@ -110,18 +110,18 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       };
       console.log("Loading tab", id);
       console.log(sessionCache.tabs[id]);
-      if (blackLister.check(tab.url)) {
-        console.log("Shit is blacklisted!");
+      if (blackLister.check(tab.url) != true) {
+        console.log("Shit is not whitelisted!!");
         sessionCache.tabs[id].state = "blacklisted";
         chrome.storage.local.set({session: sessionCache});
       };
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
-      if (sessionCache.tabs[id].state == "blacklisted") {
+      if (sessionCache.tabs[id].state != "blacklisted") {
         injectTwingl(tab);
       } else {
         if (tab.active == true) {
-          browserAction.setState("blacklisted");
+          browserAction.setState("inactive");
         }
       }
     }
@@ -164,7 +164,7 @@ chrome.tabs.onActivated.addListener(function(tab){
         browserAction.setState("active");
       } else if (state == "blacklisted") {
         console.log("this is a blacklisted site, we're going dark")
-        browserAction.setState("blacklisted");
+        browserAction.setState("inactive");
       } else if (state == "loading") {
         console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
         browserAction.setState("unknown");
@@ -214,7 +214,7 @@ var browserAction = {
         "38": "icons/active@2x.png"
       }
     },
-    blacklisted: {
+    inactive: {
       path: {
         "19": "icons/blacklisted.png",
         "38": "icons/blacklisted@2x.png"
@@ -243,7 +243,7 @@ var browserAction = {
     active: {
       popup: "popup/active.html"
     },
-    blacklisted: {
+    inactive: {
       popup: "popup/blacklisted.html"
     },
     paused: {
@@ -283,7 +283,7 @@ var pauseTwingl = {
       if (sessionCache.tabs[data[0].id] == undefined) {
         browserAction.setState("unknown");
       } else if (sessionCache.tabs[data[0].id].state == "blacklisted") {
-        browserAction.setState("blacklisted");
+        browserAction.setState("inactive");
       } else if (sessionCache.tabs[data[0].id].state == "initialised") {
         browserAction.setState("active");
       } else {
