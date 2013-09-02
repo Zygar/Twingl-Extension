@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   chrome.runtime.getBackgroundPage(function(page) {
     var authTwingl = page.authTwingl;
     var pauseTwingl = page.pauseTwingl;
-    var blackLister = page.blackLister;
+    var whiteLister = page.whiteLister;
 
     $("#sign-out").click(function() {
       authTwingl.unauth();
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.close();
     });
     $("#remove-from-blacklist").click(function() {
-      blackLister.activate();
+      whiteLister.activate();
       window.close();
     });
 

@@ -385,6 +385,7 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.action == "updateWhitelist") {
       whiteLister.update();
+      sendResponse({status: true});
     }
   });
 

@@ -3,7 +3,7 @@
  */
 
 console.log(token);
-
+console.log(isWhitelisted);
 var annotatorMethods = {
   annotatorObject: null,
   init: function(token) {
@@ -25,6 +25,14 @@ var annotatorMethods = {
         read: 'highlights/?context=' + window.location + '&expand=twinglings',
         update: 'highlights/:id',
         destroy: 'highlights/:id'
+      }
+    });
+    this.annotatorObject.subscribe("annotationCreatedSuccess", function() {
+      if (isWhitelisted == false) {
+        chrome.runtime.sendMessage({action: "updateWhitelist"}, function(response){
+          isWhitelisted = response.status;
+          console.log(isWhitelisted);
+        })
       }
     });
   },
