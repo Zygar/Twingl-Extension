@@ -112,12 +112,12 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       console.log(sessionCache.tabs[id]);
       if (blackLister.check(tab.url) != true) {
         console.log("Shit is not whitelisted!!");
-        sessionCache.tabs[id].state = "blacklisted";
+        sessionCache.tabs[id].state = "inactive";
         chrome.storage.local.set({session: sessionCache});
       };
     } else if (changeInfo.status == "complete") {
       console.log("Tab is loaded", id);
-      if (sessionCache.tabs[id].state != "blacklisted") {
+      if (sessionCache.tabs[id].state != "inactive") {
         injectTwingl(tab);
       } else {
         if (tab.active == true) {
@@ -162,7 +162,7 @@ chrome.tabs.onActivated.addListener(function(tab){
       if (state == "initialised") {
         console.log("You've switched to an initialised tab. Green icon for you!");
         browserAction.setState("active");
-      } else if (state == "blacklisted") {
+      } else if (state == "inactive") {
         console.log("this is a blacklisted site, we're going dark")
         browserAction.setState("inactive");
       } else if (state == "loading") {
@@ -282,7 +282,7 @@ var pauseTwingl = {
     chrome.tabs.query({active: true, currentWindow: true}, function(data){
       if (sessionCache.tabs[data[0].id] == undefined) {
         browserAction.setState("unknown");
-      } else if (sessionCache.tabs[data[0].id].state == "blacklisted") {
+      } else if (sessionCache.tabs[data[0].id].state == "inactive") {
         browserAction.setState("inactive");
       } else if (sessionCache.tabs[data[0].id].state == "initialised") {
         browserAction.setState("active");
@@ -323,6 +323,12 @@ var blackLister = {
     } else {
       return false
     }
+  },
+  activate: function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
+      injectTwingl(data[0]);
+      //miscActions.refresh();
+    });
   }
 }
 
@@ -338,3 +344,7 @@ chrome.tabs.onRemoved.addListener(function(id) {
   delete sessionCache.tabs[id];
   chrome.storage.local.set({session: sessionCache});
 });
+
+/* Notes 
+  There's got to be some way of removing a site from the whitelist if you clobber your annotations.
+*/

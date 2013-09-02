@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
       window.close();
     });
     $("#remove-from-blacklist").click(function() {
-      blackLister.unblacklist();
+      blackLister.activate();
+      //blackLister.whitelist();
       window.close();
     });
 
