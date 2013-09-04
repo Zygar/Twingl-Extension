@@ -59,7 +59,7 @@
 }
 
 
-body.template-flex-article .annotator-wrapper {
+body.browser-chrome .annotator-wrapper {
 	height: 100%; /* Temporary fix for Medium */ 
 }
 /* NB: If you change the list of classes for which z-index is set,
