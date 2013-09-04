@@ -3,7 +3,7 @@
 
   "name": "Twingler (for Twingl) — Synapses for the Web",
   "description": "Synapses for the Internet.",
-  "version": "0.2.2",
+  "version": "0.2.3",
 
   "permissions": [
     "http://*/*", 
