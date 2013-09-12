@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
       var url = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
       if (url === "kk.org") {
         $("#links").show();
-        $("#links>ul").append('<li><a href="#">Quantified Self</a></li>');
-        $("#links>ul").append('<li><a href="http://www.kk.org/outofcontrol/ch24-a.html">Out of Control [24] The Nine Laws Of God</a></li>');
-        $("#links>ul").append('<li><a href="#">The Technium</a></li>');
+        $("#links>ul").append('<li><a target="_blank" href="#">Quantified Self</a></li>');
+        $("#links>ul").append('<li><a target="_blank" href="http://www.kk.org/outofcontrol/ch24-a.html">Out of Control [24] The Nine Laws Of God</a></li>');
+        $("#links>ul").append('<li><a target="_blank" href="#">The Technium</a></li>');
       } else {
         $("#links").hide();
       }
