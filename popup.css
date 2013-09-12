@@ -70,3 +70,39 @@ body {
   padding: 20px;
   display: block;
 }
+
+#links { display: none; }
+#links h4 {
+  text-align: center;
+  margin: 0.2rem;
+  margin-top: 0.6rem;
+  color: rgba(66, 58, 51, 0.9);
+  text-decoration: none;
+  text-align: center;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 0.75em;
+  line-height: 3em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#links>ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#links>ul a:hover {
+  background-color: #e0d6cd;
+}
+#links>ul a {
+  width: 100%;
+  height: 100%;
+  display: block;
+  color: rgba(66, 58, 51, 0.9);
+  text-decoration: none;
+  text-align: center;
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 0.75em;
+  line-height: 3em;
+}

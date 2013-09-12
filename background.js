@@ -343,6 +343,16 @@ var whiteLister = {
       miscActions.refresh();
     });
   },
+  getRelated: function() {
+    // This should now trigger when an annotation is successfully created; but only if the site's hostname is not already in the whitelist
+    chrome.tabs.query({active: true, currentWindow: true}, function(data) {
+      var url = getHostname(data[0].url);
+      whiteLister.foo = "bar";
+      whiteLister.save();
+      miscActions.refresh();
+    });
+    return [];
+  },
   check: function(url) {
     var hostname = getHostname(url);
     if (whiteLister.whitelist[hostname] == true) {
