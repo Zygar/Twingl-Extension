@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Twingler (for Twingl) — Synapses for the Web",
-  "description": "Synapses for the Internet.",
-  "version": "0.2.3",
+  "description": "Remember more of what you read.",
+  "version": "0.2.4",
 
   "permissions": [
     "http://*/*", 
