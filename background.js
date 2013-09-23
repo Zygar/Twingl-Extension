@@ -1,6 +1,6 @@
 /* Empty session cache on startup. Supposedly. I don't think this actually works. */
 // If you log out, we problably need to clear your session as well.
-// Every so often, we need to update your whitelist to make sure it's current. 
+// Every so often, we need to update your whitelist to make sure it's current.
 chrome.runtime.onStartup.addListener(function() {
   chrome.storage.local.remove('session', function() {
     chrome.storage.local.set({
@@ -26,6 +26,7 @@ chrome.runtime.onInstalled.addListener(function() {
       var newStorage = data;
       chrome.storage.local.set(newStorage, function() {
         console.log("Migration successful!")
+        getLocalCache();
       });
     }
   })
@@ -317,13 +318,13 @@ var pauseTwingl = {
   }
 }
 
-// TODO: 
-// 2. Either add a page action or a hotkey for initialising Twingler. 
+// TODO:
+// 2. Either add a page action or a hotkey for initialising Twingler.
 var whiteLister = {
-  whitelist: {}, 
+  whitelist: {},
   update: function() {
     // How often do we need to run this?
-    // Probably just once. We could run it every time you add a highlight, but that is kind of lazy. 
+    // Probably just once. We could run it every time you add a highlight, but that is kind of lazy.
     $.ajax({
       url: 'http://api.twin.gl/v1/contexts',
       type: 'GET',
@@ -402,6 +403,6 @@ chrome.commands.onCommand.addListener(function(command) {
   }
 });
 
-/* Notes 
+/* Notes
   There's got to be some way of removing a site from the whitelist if you clobber your annotations. This is prob backend
 */
