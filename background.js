@@ -19,16 +19,13 @@ chrome.runtime.onInstalled.addListener(function() {
   chrome.storage.local.get(null, function(data){
     if (data.schemaVersion == undefined) {
       seedStorageNow();
-    } else if (data.schemaVersion == 1) {
+    } else if (data.schemaVersion == 2) {
       console.log("This is an upgrade. We'll put schema migrations in here.")
-      data.schemaVersion = 2;
-      delete data.blacklist;
-      data.whitelist = {};
+      data.schemaVersion = 3;
+      data.isOnboarded = false;
       var newStorage = data;
-      chrome.storage.local.remove('blacklist', function(){
-        chrome.storage.local.set(newStorage, function() {
-          console.log("Update successful!")
-        });  
+      chrome.storage.local.set(newStorage, function() {
+        console.log("Migration successful!")
       });
     }
   })
@@ -43,7 +40,8 @@ function resetExtension() {
 
 function seedStorageNow() {
   var seedStorage = {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    isOnboarded: false,
     paused: false,
     whitelist: {
     },
@@ -119,12 +117,12 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
       console.log("Loading tab", id);
       console.log(sessionCache.tabs[id]);
       if (whiteLister.check(tab.url) != true) {
-        console.log("Shit is not whitelisted!!");
+        // console.log("Shit is not whitelisted!!");
         sessionCache.tabs[id].state = "inactive";
         chrome.storage.local.set({session: sessionCache});
       };
     } else if (changeInfo.status == "complete") {
-      console.log("Tab is loaded", id);
+      // console.log("Tab is loaded", id);
       if (sessionCache.tabs[id].state != "inactive") {
         injectTwingl(tab, true);
       } else {
@@ -142,10 +140,10 @@ function injectTwingl(tab, isWhitelisted) {
       sessionCache.tabs[tab.id].state = "initialised";
       chrome.storage.local.set({session: sessionCache});
       if (tab.active == true) {
-        console.log("Script initialised in ACTIVE TAB! Set icon/popup NOW!")
+        // console.log("Script initialised in ACTIVE TAB! Set icon/popup NOW!")
         browserAction.setState("active");
       } else {
-        console.log("Script initialised in BACKGROUND TAB! Set icon/popup on tab switch.")
+        // console.log("Script initialised in BACKGROUND TAB! Set icon/popup on tab switch.")
       }
     })
   })
@@ -158,28 +156,28 @@ chrome.tabs.onActivated.addListener(function(tab){
      Some of this logic, then, might be unnecessary. But I'm not sure. At any rate, it's not the worst inefficiency
      in the world and you can refactor again later.
   */
-  console.log("Switched to tab", sessionCache.tabs[tab.tabId]);
+  // console.log("Switched to tab", sessionCache.tabs[tab.tabId]);
 
   if (sessionCache.global_status == "active") {
     if (sessionCache.tabs[tab.tabId] == undefined ) {
-      console.log("This is either a new foreground tab, or the extension was inactive when this tab was created. We'll display a 'refresh' popup. ")
+      // console.log("This is either a new foreground tab, or the extension was inactive when this tab was created. We'll display a 'refresh' popup. ")
       browserAction.setState("unknown");
 
     } else {
       var state = sessionCache.tabs[tab.tabId].state;
       if (state == "initialised") {
-        console.log("You've switched to an initialised tab. Purple icon for you!");
+        // console.log("You've switched to an initialised tab. Purple icon for you!");
         browserAction.setState("active");
       } else if (state == "inactive") {
-        console.log("This site is not whitelisted, so we are going to go dark.")
+        // console.log("This site is not whitelisted, so we are going to go dark.")
         browserAction.setState("inactive");
       } else if (state == "loading") {
-        console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
+        // console.log("this tab is still loading, do nothing. The icon will automatically change when load completes")
         browserAction.setState("unknown");
       }
     }
   } else if(sessionCache.global_status == "paused") {
-    console.log("Paused. Show the paused icon.")
+    // console.log("Paused. Show the paused icon.")
     browserAction.setState("paused");
   } else if (sessionCache.global_status == "signed_out") {
     browserAction.setState("signed_out");
@@ -203,12 +201,23 @@ var authTwingl = {
   },
   check: function() {
     if (twingl.getAccessToken()) {
+      chrome.storage.local.get(null, function(data) {
+        if(data.isOnboarded != true) {
+          console.log("You've not been onboarded yet or we have a schema update to perform.", data)
+          chrome.tabs.create({url: "http://twin.gl/onboarding/"}, function(){
+            chrome.storage.local.set({isOnboarded: true});
+          })
+        } else {
+          console.log("You have already been onboarded.")
+        }
+      });
       window.token = twingl.getAccessToken();
       $.ajaxSetup({
         headers: {
           'Authorization': 'Bearer ' + window.token
         }
       });
+      // console.log(sessionCache);
       sessionCache.global_status = "active";
       chrome.storage.local.set({session: sessionCache});
       if(jQuery.isEmptyObject(whiteLister.whitelist)) {whiteLister.update(); console.log("Your whitelist appears to be empty. Checking.")}
@@ -323,7 +332,7 @@ var whiteLister = {
         for (var i = data.length - 1; i >= 0; i--) {
           whiteLister.whitelist[getHostname(data[i].url)] = true;
         };
-        console.log("successfully loaded whitelist")
+        // console.log("successfully loaded whitelist")
         whiteLister.save();
       },
       error: function(data, status, error) {

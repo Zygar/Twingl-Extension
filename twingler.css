@@ -119,16 +119,6 @@ body.modal-open {
   background-color: black;
 }
 
-.current {
-  color: #ccc;
-}
-
-.twingled {
-  color: green;
-}
-
-
-
 .twingler .twingling {
   display: block;
   line-height: 140%;
