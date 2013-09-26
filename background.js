@@ -205,7 +205,7 @@ var authTwingl = {
       chrome.storage.local.get(null, function(data) {
         if(data.isOnboarded != true) {
           console.log("You've not been onboarded yet or we have a schema update to perform.", data)
-          chrome.tabs.create({url: "http://twin.gl/onboarding/"}, function(){
+          chrome.tabs.create({url: "http://twin.gl/onboarding/1/"}, function(){
             chrome.storage.local.set({isOnboarded: true});
           })
         } else {
