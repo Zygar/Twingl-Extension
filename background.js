@@ -22,7 +22,7 @@ chrome.runtime.onInstalled.addListener(function() {
     } else if (data.schemaVersion == 2) {
       console.log("This is an upgrade. We'll put schema migrations in here.")
       data.schemaVersion = 3;
-      data.isOnboarded = false;
+      data.isOnboarded = true;
       var newStorage = data;
       chrome.storage.local.set(newStorage, function() {
         console.log("Migration successful!")
