@@ -3,7 +3,7 @@
 
   "name": "Twingler (for Twingl) — Synapses for the Web",
   "description": "Remember more of what you read.",
-  "version": "0.3.0",
+  "version": "0.3.1",
 
   "permissions": [
     "http://*/*", 
@@ -52,5 +52,6 @@
   "background": {
     "scripts": ["/oauth2/oauth2.js", "background.js", "vendor/jquery-2.0.3.min.js"],
     "persistent": false
-  }
+  },
+  "web_accessible_resources": ["/oauth2/oauth2.html"]
 }
