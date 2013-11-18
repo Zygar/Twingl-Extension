@@ -93,6 +93,9 @@
   cursor: pointer;
 }
 
+.twingl-returned-result small {
+  font-size: 0.8em;
+}
 .working {
   background-color: rgba(40,40,40,0.25);
   color: #E7E7E3;
