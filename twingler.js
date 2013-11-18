@@ -1,8 +1,8 @@
 // TODO:
-// Results should only be rendered once—it's horribly inefficient right now. 
-// Results should be ordered, somehow. 
+// Results should only be rendered once—it's horribly inefficient right now.
+// Results should be ordered, somehow.
 // Test for duplication—I have a feeling that highlights and comments which share keywords will appear twice.
-// Show all comments; not just first one. 
+// Show all comments; not just first one.
 
 var twingler = {
   annotator: {},
@@ -15,7 +15,7 @@ var twingler = {
     this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
-    
+
     // Bind events
     $('#twingler-close').click(function() {
       twingler.done();
@@ -40,13 +40,13 @@ var twingler = {
   },
   search: function(query) {
     // TODO: Hook up "Working" state.
-    $searchresults = this.$twingler.find(".twingl-search-results"); 
+    $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.html("<li class='twingler-search-status'>Searching...</li>");
-    if(query == "") {
+    if (query == "") {
       $.ajax({
         url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=comments',
         type: 'GET',
-        success: function(data){
+        success: function(data) {
           console.log(data);
           twingler.renderResults(data);
         }
@@ -64,7 +64,7 @@ var twingler = {
         error: function(data, status, error) {
           console.log(data, status, error);
         }
-      });  
+      });
     }
   },
   parseResults: function(results) {
@@ -73,7 +73,7 @@ var twingler = {
     var currentTwinglings = this.currentTwinglings;
     var newResults = [];
     console.log(results);
-    
+
     function highlightCheck(id) {
       var isTwinglable = true;
       if (id == currentAnnotation.id) {
@@ -92,10 +92,10 @@ var twingler = {
 
     for (var i = results.length - 1; i >= 0; i--) {
       var isTwinglable = true;
-      var result = results[i].result_object; 
+      var result = results[i].result_object;
       var ref_id;
       console.log(result);
-      
+
       if (results[i].result_type == "highlights") {
         ref_id = result.id;
         isTwinglable = highlightCheck(ref_id);
@@ -104,13 +104,13 @@ var twingler = {
         isTwinglable = highlightCheck(ref_id);
       };
 
-      // Check whether result is a highlight or a comment. If it's a comment, evaluate the ID to see if it's Twinglable. If it is, check the highlight hasn't already been returned. If it hasn't, return the highlight. 
+      // Check whether result is a highlight or a comment. If it's a comment, evaluate the ID to see if it's Twinglable. If it is, check the highlight hasn't already been returned. If it hasn't, return the highlight.
       if (isTwinglable == true) {
         // This is where we push the expanded object
         $.ajax({
-          url: 'http://api.twin.gl/v1/highlights/'+ref_id+'?expand=comments',
+          url: 'http://api.twin.gl/v1/highlights/' + ref_id + '?expand=comments',
           type: 'GET',
-          success: function(data){
+          success: function(data) {
             console.log(data);
             newResults.push(data);
             console.log(newResults);
@@ -123,30 +123,30 @@ var twingler = {
     this.renderResults(newResults);
   },
   renderResults: function(results) {
-    // TODO: We need a new results object: expanded highlights, with invalid Twinglings filtered out. 
+    // TODO: We need a new results object: expanded highlights, with invalid Twinglings filtered out.
 
 
     // TODO : Return "No Results" if empty.
     console.log(results);
     $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.empty();
-    if (results.length > 0 ){
+    if (results.length > 0) {
       for (var i = results.length - 1; i >= 0; i--) {
         result = results[i];
-        $searchresults.append("<li class='twingl-returned-result' data-id="+result.id+">" + result.quote + " <br> <small>"+result.comments[0].body +"</small></li>");
+        $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.comments[0].body + "</small></li>");
       };
       $('.twingl-returned-result').off('click').on('click', this.currentAnnotation, twinglerCrud.create);
     } else {
       $searchresults.html("<li class='twingler-search-status'>We couldn’t find anything matching those terms. Sorry! :-(</li>");
     }
-    
+
   },
   done: function() {
     this.$twingler.find(".twingl-search-results").html("<li class='twingler-search-status'>Does this passage remind you of something else? Create a Twingling to another passage to create a two-way link between the two items.</li>");
     this.$twingler.hide();
-    this.currentTwinglings = []; 
+    this.currentTwinglings = [];
     $('body').removeClass("modal-open");
-    // TODO: Unset all values, like search results. 
+    // TODO: Unset all values, like search results.
   },
   unload: function() {
     this.$twingler.remove();
@@ -155,12 +155,12 @@ var twingler = {
 }
 
 var twinglerCrud = {
-  create: function(event) { 
+  create: function(event) {
     var $elem = $(this);
     var annotation = event.data;
     var dest_id = $(this).attr("data-id");
     var src_id = annotation.id;
-    
+
     twinglerCrud.working.start($elem);
 
     $.ajax({
@@ -175,7 +175,7 @@ var twinglerCrud = {
       success: function(data) {
         console.log("Great success! Twingling is create.", data);
         twinglerCrud.working.success($elem);
-        $.ajax({ 
+        $.ajax({
           // Get the freshly created Twingling and and attach it to the Annotation object.
           url: "http://api.twin.gl/v1/twinglings/" + data.id + "?expand=end_object",
           type: "GET",
@@ -218,7 +218,7 @@ var twinglerCrud = {
       elem.remove();
     },
     error: function(elem) {
-      // If there was an error, we need to bind an event to "Try Submitting Again". 
+      // If there was an error, we need to bind an event to "Try Submitting Again".
       // We also need to set an error class.
       // We also need the ability to "Report Bug"
     }
