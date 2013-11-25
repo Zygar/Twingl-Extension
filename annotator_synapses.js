@@ -9,7 +9,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
   options: {},
   pluginInit: function() {
     var that = this; 
-    console.log("Plugin successfully initialised.", this);
+    //console.log("Plugin successfully initialised.", this);
     twingler.init(this.annotator);
     annotatorMethods.annotatorObject = this.annotator;
     
@@ -27,20 +27,20 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
         annotation.twinglings = []; // Prevent twinglings.length error on fresh Annotations.
       })
       .subscribe("annotationCreatedSuccess", function(annotation) {
-        console.log("Great success! Annotation created with ID" + annotation.id)
+        //console.log("Great success! Annotation created with ID" + annotation.id)
         
       })
       .subscribe("twinglingCreated", function(twingling, annotation) {
         annotation.twinglings.push(twingling);
         if (twingling.end_object.context_url === annotation.context_url) {
-          console.log("YO! You be making a same page Twingling!")
+          //console.log("YO! You be making a same page Twingling!")
           /* We then need to find its local annotation object—the one which Annotator is holding
           in memory—and push a Twingling to that array. We need to do the same on delete. 
           This is a time consuming and medium priority task. */
         }
       })
       .subscribe("twinglingDestroyed", function(twingling_id, annotation) {
-        console.log("Receiving a destroyed event.")
+        //console.log("Receiving a destroyed event.")
         for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
           if (annotation.twinglings[i].id == twingling_id) {
             annotation.twinglings.splice(i, 1);
@@ -82,10 +82,10 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
   },
   twinglIt: function(event) {
     Annotator.Util.preventEventDefault(event);
-    console.log(this);
+    //console.log(this);
     this.annotator.editor.submit();
     if(this.currentAnnotation.id == undefined) {
-      console.log("No id yet.")
+      //console.log("No id yet.")
      /* If an ID has not yet been received...
         We want to init the Synapser, but have it stay in the "working"
         state until annotationCreatedSuccess has been heard. 

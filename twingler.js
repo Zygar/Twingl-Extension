@@ -26,7 +26,7 @@ var twingler = {
       };
     });
 
-    console.log("Twingler has been initialised.", this);
+    //console.log("Twingler has been initialised.", this);
   },
   begin: function(annotation) {
     this.$twingler.show();
@@ -47,7 +47,7 @@ var twingler = {
         url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=comments',
         type: 'GET',
         success: function(data) {
-          console.log(data);
+          //console.log(data);
           twingler.renderResults(data);
         }
       })
@@ -62,7 +62,7 @@ var twingler = {
           twingler.parseResults(data);
         },
         error: function(data, status, error) {
-          console.log(data, status, error);
+          //console.log(data, status, error);
         }
       });
     }
@@ -72,13 +72,13 @@ var twingler = {
     var currentAnnotation = this.currentAnnotation;
     var currentTwinglings = this.currentTwinglings;
     var newResults = [];
-    console.log(results);
+    //console.log(results);
 
     function highlightCheck(id) {
       var isTwinglable = true;
       if (id == currentAnnotation.id) {
         isTwinglable = false;
-        console.log(isTwinglable);
+        //console.log(isTwinglable);
       } else if (currentTwinglings.length > 0) {
         for (var j = currentTwinglings.length - 1; j >= 0; j--) {
           if (currentTwinglings[j].end_id == id || currentTwinglings[j].start_id == id) {
@@ -94,7 +94,7 @@ var twingler = {
       var isTwinglable = true;
       var result = results[i].result_object;
       var ref_id;
-      console.log(result);
+      //console.log(result);
 
       if (results[i].result_type == "highlights") {
         ref_id = result.id;
@@ -111,15 +111,15 @@ var twingler = {
           url: 'http://api.twin.gl/v1/highlights/' + ref_id + '?expand=comments',
           type: 'GET',
           success: function(data) {
-            console.log(data);
+            //console.log(data);
             newResults.push(data);
-            console.log(newResults);
+            //console.log(newResults);
             twingler.renderResults(newResults);
           }
         })
       }
     };
-    console.log(newResults);
+    //console.log(newResults);
     this.renderResults(newResults);
   },
   renderResults: function(results) {
@@ -127,7 +127,7 @@ var twingler = {
 
 
     // TODO : Return "No Results" if empty.
-    console.log(results);
+    //console.log(results);
     $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.empty();
     if (results.length > 0) {
@@ -173,7 +173,7 @@ var twinglerCrud = {
         end_id: dest_id
       },
       success: function(data) {
-        console.log("Great success! Twingling is create.", data);
+        //console.log("Great success! Twingling is create.", data);
         twinglerCrud.working.success($elem);
         $.ajax({
           // Get the freshly created Twingling and and attach it to the Annotation object.
@@ -185,7 +185,7 @@ var twinglerCrud = {
         });
       },
       error: function(data, status, error) {
-        console.log(data, status, error);
+        //console.log(data, status, error);
         twinglerCrud.working.error($elem, error);
       }
     })
@@ -205,7 +205,7 @@ var twinglerCrud = {
         twinglerCrud.working.success($elem);
       },
       error: function(data, status, error) {
-        console.log(data, status, error);
+        //console.log(data, status, error);
         twinglerCrud.working.error($elem, error);
       }
     });

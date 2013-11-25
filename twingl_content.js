@@ -2,8 +2,8 @@
  * Everything that touches the page happens here.
  */
 
-console.log(token);
-console.log(isWhitelisted);
+// console.log(token);
+// console.log(isWhitelisted);
 var annotatorMethods = {
   annotatorObject: null,
   init: function(token) {
@@ -31,13 +31,13 @@ var annotatorMethods = {
       if (isWhitelisted == false) {
         chrome.runtime.sendMessage({action: "updateWhitelist"}, function(response){
           isWhitelisted = response.status;
-          console.log(isWhitelisted);
+          // console.log(isWhitelisted);
         })
       }
     });
   },
   unload: function() {
-    console.log(this.annotatorObject);
+    // console.log(this.annotatorObject);
     this.annotatorObject.destroy();  
     twingler.unload();
   }

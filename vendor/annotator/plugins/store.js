@@ -291,5 +291,3 @@
 /*
 //
 */
-
-//@ sourceMappingURL=annotator.store.map
