@@ -133,7 +133,11 @@ var twingler = {
     if (results.length > 0) {
       for (var i = results.length - 1; i >= 0; i--) {
         result = results[i];
-        $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.comments[0].body + "</small></li>");
+        if (result.comments.length > 0) {
+          $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.comments[0].body + "</small></li>");
+        } else {
+          $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + "</li>");
+        }
       };
       $('.twingl-returned-result').off('click').on('click', this.currentAnnotation, twinglerCrud.create);
     } else {
