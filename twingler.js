@@ -131,7 +131,7 @@ var twingler = {
     $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.empty();
     if (results.length > 0) {
-      for (var i = results.length - 1; i >= 0; i--) {
+      for (var i = 0; i < results.length; i++) {
         result = results[i];
         if (result.comments.length > 0) {
           $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.comments[0].body + "</small></li>");
