@@ -135,8 +135,15 @@ chrome.tabs.onUpdated.addListener(function(id, changeInfo, tab) {
   }
 });
 
+if(window.contentScriptInjected != true) {
+  var token = window.token;
+  
+} else {
+  var injectedTwice = true;
+}
+
 function injectTwingl(tab, isWhitelisted) {
-  chrome.tabs.executeScript(tab.id, {code: "var token = '"+window.token+"'; var isWhitelisted = "+isWhitelisted+";"}, function(){
+  chrome.tabs.executeScript(tab.id, {code: "if(window.contentScriptInjected != true) {var token = '"+window.token+"'; var isWhitelisted = "+isWhitelisted+"; window.contentScriptInjected = true; } else {var token = '"+window.token+"'; var isWhitelisted = "+isWhitelisted+"; var injectedTwice = true;}"}, function(){
     chrome.tabs.executeScript(tab.id, {file: 'twingl_content.js'}, function() {
       sessionCache.tabs[tab.id].state = "initialised";
       chrome.storage.local.set({session: sessionCache});
@@ -169,6 +176,11 @@ chrome.tabs.onActivated.addListener(function(tab){
       if (state == "initialised") {
         // console.log("You've switched to an initialised tab. Purple icon for you!");
         browserAction.setState("active");
+        // chrome.browserAction.setBadgeText({text: "1"});
+        // TODO: We need to get a hold of the annotations object so that we can count it.
+        // Once we have the annotations object, it's probably fairly trivial to render those in the 
+        // popup as well...
+
       } else if (state == "inactive") {
         // console.log("This site is not whitelisted, so we are going to go dark.")
         browserAction.setState("inactive");

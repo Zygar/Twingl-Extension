@@ -8,10 +8,12 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
   },
   options: {},
   pluginInit: function() {
+    // console.log(annotatorMethods.annotatorObject);
     var that = this; 
-    //console.log("Plugin successfully initialised.", this);
+    // console.log("Plugin successfully initialised.", this);
     twingler.init(this.annotator);
     annotatorMethods.annotatorObject = this.annotator;
+
     
     //$(".annotator-controls").prepend("<a id='twinglings' href='#twingling'>Twinglings</a>");
     
