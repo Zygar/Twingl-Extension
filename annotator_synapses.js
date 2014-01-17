@@ -57,17 +57,28 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
       load: function(field, annotation) {
         // Check if a Twingling is Inbound or Outbound, then append it to the list. 
         if (annotation.twinglings && annotation.twinglings.length > 0) {
-          for (var i = annotation.twinglings.length - 1; i >= 0; i--) {
-            var twingling_id = annotation.twinglings[i].id;
-            if (annotation.twinglings[i].start_id === annotation.id) {
-              var twingling = annotation.twinglings[i].end_object;
-            } else {
-              var twingling = annotation.twinglings[i].start_object;
-            };
-            twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
-            twingling.shortURL = getHostname(twingling.context_url);
-            $(field).append("<div data-id="+ twingling_id +" class='active-twingling'><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
-          };
+          // Collect the IDs of the Twinglings we need to retrieve
+          twingling_ids = [];
+          for (var i = annotation.twinglings.length - 1; i >= 0; i--)
+            twingling_ids.push(annotation.twinglings[i].id);
+
+          $.ajax({
+            url: 'http://api.twin.gl/v1/twinglings?expand=start_object,end_object&id=' + twingling_ids.join(","),
+            type: 'GET',
+            success: function(data) {
+              for (var i = data.length - 1; i >= 0; i--) {
+                var twingling_id = data[i].id;
+                if (data[i].start_id === annotation.id) {
+                  var twingling = data[i].end_object;
+                } else {
+                  var twingling = data[i].start_object;
+                };
+                twingling.shortquote = twingling.quote.substr(0, 125) + "&#8230";
+                twingling.shortURL = getHostname(twingling.context_url);
+                $(field).append("<div data-id="+ twingling_id +" class='active-twingling'><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
+              };
+            }
+          })
           $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
         }
         if (annotation.id != undefined) {
