@@ -77,9 +77,9 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
                 twingling.shortURL = getHostname(twingling.context_url);
                 $(field).append("<div data-id="+ twingling_id +" class='active-twingling'><button class='twingling-destroy'>x</button><a class='twingling' href='" + twingling.context_url + "'>" + twingling.shortquote + "<br><small>"+ twingling.shortURL +"</small> </a></div>");
               };
+              $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
             }
           })
-          $('.twingling-destroy').off('click').on('click', annotation, twinglerCrud.destroy);
         }
         if (annotation.id != undefined) {
           $(field).append("<button class='twingl-btn' id='twingling-add'>Add Twingling</button>");
