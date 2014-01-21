@@ -11,7 +11,7 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.after("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter. Leave the field blank to get your 15 most recent highlights.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Create a Twingling to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
+    this.annotator.wrapper.after("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter. Leave the field blank to get your 15 most recent highlights.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Make a Connection to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
     this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
@@ -149,7 +149,7 @@ var twingler = {
 
   },
   done: function() {
-    this.$twingler.find(".twingl-search-results").html("<li class='twingler-search-status'>Does this passage remind you of something else? Create a Twingling to another passage to create a two-way link between the two items.</li>");
+    this.$twingler.find(".twingl-search-results").html("<li class='twingler-search-status'>Does this passage remind you of something else? Make a Connection to another passage to create a two-way link between the two items.</li>");
     this.$twingler.hide();
     this.currentTwinglings = [];
     $('body').removeClass("modal-open");
