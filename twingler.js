@@ -36,21 +36,14 @@ var twingler = {
     this.currentTwinglings = annotation.twinglings;
     this.$twingler.find(".twingl-current-highlight").text(twingler.currentAnnotation.quote);
     this.$twingler.find(".twingl-current-comment").text(twingler.currentAnnotation.text);
-
+    twingler.getLatestFifteen();
   },
   search: function(query) {
     // TODO: Hook up "Working" state.
     $searchresults = this.$twingler.find(".twingl-search-results");
     $searchresults.html("<li class='twingler-search-status'>Searching...</li>");
     if (query == "") {
-      $.ajax({
-        url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=comments',
-        type: 'GET',
-        success: function(data) {
-          //console.log(data);
-          twingler.renderResults(data);
-        }
-      })
+      twingler.getLatestFifteen();
     } else {
       $.ajax({
         url: 'http://api.twin.gl/v1/search',
@@ -66,6 +59,16 @@ var twingler = {
         }
       });
     }
+  },
+  getLatestFifteen: function() {
+    $.ajax({
+      url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=comments',
+      type: 'GET',
+      success: function(data) {
+        //console.log(data);
+        twingler.renderResults(data);
+      }
+    })
   },
   parseResults: function(results) {
     // Exclude current twinglings, current annotation from results.
