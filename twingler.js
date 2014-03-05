@@ -1,8 +1,8 @@
 // TODO:
 // Results should only be rendered once—it's horribly inefficient right now.
 // Results should be ordered, somehow.
-// Test for duplication—I have a feeling that highlights and comments which share keywords will appear twice.
-// Show all comments; not just first one.
+// Test for duplication—I have a feeling that highlights and notes which share keywords will appear twice.
+// Show all notes; not just first one.
 
 var twingler = {
   annotator: {},
@@ -11,7 +11,7 @@ var twingler = {
   $twingler: {}, // Maybe we store DOM elements as an array so we can systematically clear them upon "Done"
   init: function(annotator) {
     this.annotator = annotator; // Annotator object added to Twingler.
-    this.annotator.wrapper.after("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-comment'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter. Leave the field blank to get your 15 most recent highlights.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Make a Connection to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
+    this.annotator.wrapper.after("<div id='twingler-outer' class='twingler'><div id='twingler-inner'><div class='twingler-scrollable'><div class='twingl-current'><div class='twingl-current-highlight'></div><div class='twingl-current-note'></div></div><input type='search' id='twingler-search-field' placeholder='Type a search here and press enter. Leave the field blank to get your 15 most recent highlights.'><ul class='twingl-search-results'><li class='twingler-search-status'>Does this passage remind you of something else? Make a Connection to another passage to create a two-way link between the two items.</li></ul></div><button id='twingler-close' class='twingl-btn'>Done</button></div></div>");
     this.$twingler = $("#twingler-outer");
     this.$searchfield = $("#twingler-search-field");
     var that = this;
@@ -35,7 +35,7 @@ var twingler = {
     this.currentAnnotation = annotation;
     this.currentTwinglings = annotation.twinglings;
     this.$twingler.find(".twingl-current-highlight").text(twingler.currentAnnotation.quote);
-    this.$twingler.find(".twingl-current-comment").text(twingler.currentAnnotation.text);
+    this.$twingler.find(".twingl-current-note").text(twingler.currentAnnotation.text);
     twingler.getLatestFifteen();
   },
   search: function(query) {
@@ -62,7 +62,7 @@ var twingler = {
   },
   getLatestFifteen: function() {
     $.ajax({
-      url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=comments',
+      url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=notes',
       type: 'GET',
       success: function(data) {
         //console.log(data);
@@ -102,16 +102,16 @@ var twingler = {
       if (results[i].result_type == "highlights") {
         ref_id = result.id;
         isTwinglable = highlightCheck(ref_id);
-      } else if (results[i].result_type == "comments") {
-        ref_id = result.commented_id;
+      } else if (results[i].result_type == "notes") {
+        ref_id = result.annotated_id;
         isTwinglable = highlightCheck(ref_id);
       };
 
-      // Check whether result is a highlight or a comment. If it's a comment, evaluate the ID to see if it's Twinglable. If it is, check the highlight hasn't already been returned. If it hasn't, return the highlight.
+      // Check whether result is a highlight or a note. If it's a note, evaluate the ID to see if it's Twinglable. If it is, check the highlight hasn't already been returned. If it hasn't, return the highlight.
       if (isTwinglable == true) {
         // This is where we push the expanded object
         $.ajax({
-          url: 'http://api.twin.gl/v1/highlights/' + ref_id + '?expand=comments',
+          url: 'http://api.twin.gl/v1/highlights/' + ref_id + '?expand=notes',
           type: 'GET',
           success: function(data) {
             //console.log(data);
@@ -136,8 +136,8 @@ var twingler = {
     if (results.length > 0) {
       for (var i = 0; i < results.length; i++) {
         result = results[i];
-        if (result.comments.length > 0) {
-          $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.comments[0].body + "</small></li>");
+        if (result.notes.length > 0) {
+          $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + " <br> <small>" + result.notes[0].body + "</small></li>");
         } else {
           $searchresults.append("<li class='twingl-returned-result' data-id=" + result.id + ">" + result.quote + "</li>");
         }
