@@ -415,6 +415,11 @@ chrome.commands.onCommand.addListener(function(command) {
   }
 });
 
+// Invalidate the page-activation cache on update/install
+chrome.runtime.onInstalled.addListener(function(details) {
+  whiteLister.update();
+});
+
 /* Notes
   There's got to be some way of removing a site from the whitelist if you clobber your annotations. This is prob backend
 */
