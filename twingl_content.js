@@ -26,7 +26,7 @@ if(injectedTwice != undefined) {
         token: token
       });
       theAnnotator.annotator('addPlugin', 'Store', {
-        prefix: 'http://api.twin.gl/v1/',
+        prefix: 'https://api.twin.gl/v1/',
         urls: {
           create: 'highlights?context=' + window.location,
           read: 'highlights/?context=' + window.location + '&expand=twinglings',

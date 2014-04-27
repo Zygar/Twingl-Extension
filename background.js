@@ -338,7 +338,7 @@ var whiteLister = {
     // How often do we need to run this?
     // Probably just once. We could run it every time you add a highlight, but that is kind of lazy.
     $.ajax({
-      url: 'http://api.twin.gl/v1/contexts/mine',
+      url: 'https://api.twin.gl/v1/contexts/mine',
       type: 'GET',
       success: function(data) {
         whiteLister.whitelist = {};

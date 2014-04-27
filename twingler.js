@@ -46,7 +46,7 @@ var twingler = {
       twingler.getLatestFifteen();
     } else {
       $.ajax({
-        url: 'http://api.twin.gl/v1/search',
+        url: 'https://api.twin.gl/v1/search',
         type: 'GET',
         data: {
           q: query
@@ -62,7 +62,7 @@ var twingler = {
   },
   getLatestFifteen: function() {
     $.ajax({
-      url: 'http://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=notes',
+      url: 'https://api.twin.gl/v1/highlights?context=twingl://mine&limit=15&sort=created&order=desc&expand=notes',
       type: 'GET',
       success: function(data) {
         //console.log(data);
@@ -111,7 +111,7 @@ var twingler = {
       if (isTwinglable == true) {
         // This is where we push the expanded object
         $.ajax({
-          url: 'http://api.twin.gl/v1/highlights/' + ref_id + '?expand=notes',
+          url: 'https://api.twin.gl/v1/highlights/' + ref_id + '?expand=notes',
           type: 'GET',
           success: function(data) {
             //console.log(data);
@@ -171,7 +171,7 @@ var twinglerCrud = {
     twinglerCrud.working.start($elem);
 
     $.ajax({
-      url: "http://api.twin.gl/v1/twinglings",
+      url: "https://api.twin.gl/v1/twinglings",
       type: "POST",
       data: {
         start_type: "highlights",
@@ -184,7 +184,7 @@ var twinglerCrud = {
         twinglerCrud.working.success($elem);
         $.ajax({
           // Get the freshly created Twingling and and attach it to the Annotation object.
-          url: "http://api.twin.gl/v1/twinglings/" + data.id + "?expand=end_object",
+          url: "https://api.twin.gl/v1/twinglings/" + data.id + "?expand=end_object",
           type: "GET",
           success: function(data) {
             twingler.annotator.publish("twinglingCreated", [data, annotation]);
@@ -205,7 +205,7 @@ var twinglerCrud = {
     twinglerCrud.working.start($elem);
 
     $.ajax({
-      url: "http://api.twin.gl/v1/twinglings/" + twingling_id,
+      url: "https://api.twin.gl/v1/twinglings/" + twingling_id,
       type: "DELETE",
       success: function(data) {
         twingler.annotator.publish("twinglingDestroyed", [twingling_id, annotation]);

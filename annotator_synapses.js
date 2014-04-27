@@ -63,7 +63,7 @@ jQuery.extend(Annotator.Plugin.Twinglings.prototype, new Annotator.Plugin(), {
             twingling_ids.push(annotation.twinglings[i].id);
 
           $.ajax({
-            url: 'http://api.twin.gl/v1/twinglings?expand=start_object,end_object&id=' + twingling_ids.join(","),
+            url: 'https://api.twin.gl/v1/twinglings?expand=start_object,end_object&id=' + twingling_ids.join(","),
             type: 'GET',
             success: function(data) {
               for (var i = data.length - 1; i >= 0; i--) {
